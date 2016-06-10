@@ -15,5 +15,7 @@ def get_result(rollNum,degree,session,year):
 	html_response = get_html_response(rollNum,degree,session,year)
 	result_soup = BeautifulSoup(html_response.text)
 	result_dict = {
-		rollNum = result_soup.select(".td2  h5 > u")[0].string
+		rollNum : result_soup.select(".td2  h5 > u")[0].string
 	}
+
+	return result_dict
