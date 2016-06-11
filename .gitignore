@@ -1,2 +1,4 @@
 .sample-useragent.txt
 *.pyc
+tests/*.pyc
+*temp*
