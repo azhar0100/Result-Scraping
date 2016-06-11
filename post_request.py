@@ -26,10 +26,10 @@ def get_result(rollNum,degree,session,year):
 
 	middle_table = result_soup.select(".td2")[0].table
 
-	roll_and_reg_row = middle_table('tr',recursive=False)[1].td.table.tr
+	reg_row = middle_table('tr',recursive=False)[1].td.table.tr
 	result_dict.update({
-		"rollNum" : get_tag_contents(roll_and_reg_row)[0].h5.u.string.strip() ,
-		"regNum"  : get_tag_contents(roll_and_reg_row)[2].p.u.string.strip()
+		"rollNum" : get_tag_contents(reg_row)[0].h5.u.string.strip() ,
+		"regNum"  : get_tag_contents(reg_row)[2].p.u.string.strip()
 	})
 
 
