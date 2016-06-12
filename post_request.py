@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -33,14 +34,12 @@ def get_result(rollNum,degree,session,year):
 	})
 
 	degree_row = middle_table('tr',recursive=False)[2].select('h4')[0]
-	degree_and_exam_str = list(degree_row.stripped_strings())[0]
+	degree_and_exam_str = list(degree_row.stripped_strings)[0]
 	result_dict.update({
-		"degree"   : re.sub(r'([^()])','\1',degree_and_exam_str)
-		"examType" : re.sub(r'\([^()]\)','\1',degree_and_exam_str)
-		"year"     : degree_row.u.string
-		"group"    : degree_row.select('u')[1].string
+		"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
+		"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
+		"year"     : degree_row.u.string.strip() ,
+		"group"    : degree_row.select('u')[1].string.strip()
 	})
-
-	print result_dict
 
 	return result_dict
