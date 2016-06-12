@@ -32,6 +32,15 @@ def get_result(rollNum,degree,session,year):
 		"regNum"  : get_tag_contents(reg_row)[2].p.u.string.strip()
 	})
 
+	degree_row = middle_table('tr',recursive=False)[2].select('h4')[0]
+	degree_and_exam_str = list(degree_row.stripped_strings())[0]
+	result_dict.update({
+		"degree"   : re.sub(r'([^()])','\1',degree_and_exam_str)
+		"examType" : re.sub(r'\([^()]\)','\1',degree_and_exam_str)
+		"year"     : degree_row.u.string
+		"group"    : degree_row.select('u')[1].string
+	})
 
+	print result_dict
 
 	return result_dict
