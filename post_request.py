@@ -9,6 +9,18 @@ url = 'http://result.biselahore.com/Home/Result'
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 # params = { 'degree': 'SSC' , 'rollNum': '' , 'session': '2' , 'year': '2015' }
 
+def lazy_property(fn):
+	attr_name = '__lazy__' + fn.__name__
+
+	@property
+	def _lazy_property(self):
+		if not hasattr(self,attr_name):
+			setattr(self,attr_name,fn(self))
+		return getattr(self,attr_name)
+
+	return _lazy_property
+
+
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
 	return requests.post(url , data=params , headers=headers)
@@ -69,3 +81,5 @@ class Result(object):
 		reg_row = middle_table('tr',recursive=False)[1].td.table.tr
 		self._rollNum : get_tag_contents(reg_row)[0].h5.u.string.strip()
 		self._regNum  : get_tag_contents(reg_row)[2].p.u.string.strip()
+
+
