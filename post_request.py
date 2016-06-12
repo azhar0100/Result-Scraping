@@ -52,4 +52,7 @@ def get_result(rollNum,degree,session,year):
 	})
 	result_dict["date_of_birth"] = datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string,"%d/%m/%Y").date()
 
+	marks_row = middle_table('tr',recursive=False)[4].td
+	print marks_row
+
 	return result_dict
