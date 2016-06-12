@@ -2,6 +2,7 @@
 
 import re
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 
 url = 'http://result.biselahore.com/Home/Result'
@@ -38,8 +39,17 @@ def get_result(rollNum,degree,session,year):
 	result_dict.update({
 		"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
 		"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
-		"year"     : degree_row.u.string.strip() ,
+		"year"     : datetime.strptime(degree_row.u.string.strip(),"%Y").date() ,	
 		"group"    : degree_row.select('u')[1].string.strip()
 	})
+
+	credential_row = middle_table('tr',recursive=False)[3].table
+
+	result_dict.update({
+		"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
+		"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
+		"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string)
+	})
+	result_dict["date_of_birth"] = datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string,"%d/%m/%Y").date()
 
 	return result_dict
