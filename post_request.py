@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,6 +11,10 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
 	return requests.post(url , data=params , headers=headers)
+
+def get_tag_contents(bs4_tag):
+	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
+	return bs4_tag(True,recursive=False)
 	
 def get_result(rollNum,degree,session,year):
 	html_response = get_html_response(rollNum,degree,session,year)
@@ -21,10 +26,20 @@ def get_result(rollNum,degree,session,year):
 	# The middle_table is divided into many <tr> elements which are handled separately.
 
 	middle_table = result_soup.select(".td2")[0].table
-	roll_and_reg_row = middle_table('tr',recursive=False)[1].td.table.tr
+
+	reg_row = middle_table('tr',recursive=False)[1].td.table.tr
 	result_dict.update({
-		"rollNum" : roll_and_reg_row(True,recursive=False)[0].h5.u.string.strip() ,
-		"regNum"  : roll_and_reg_row(True,recursive=False)[2].p.u.string.strip()
+		"rollNum" : get_tag_contents(reg_row)[0].h5.u.string.strip() ,
+		"regNum"  : get_tag_contents(reg_row)[2].p.u.string.strip()
+	})
+
+	degree_row = middle_table('tr',recursive=False)[2].select('h4')[0]
+	degree_and_exam_str = list(degree_row.stripped_strings)[0]
+	result_dict.update({
+		"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
+		"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
+		"year"     : degree_row.u.string.strip() ,
+		"group"    : degree_row.select('u')[1].string.strip()
 	})
 
 	return result_dict
