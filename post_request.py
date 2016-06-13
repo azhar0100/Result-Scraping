@@ -103,3 +103,14 @@ class Result(object):
 		result_dict.update(self.degree_row)
 		result_dict.update(self.credential_row)
 		return result_dict
+
+class Result_part2(Result):
+
+	@lazy_property
+	def marks_row(self):
+		marks_row = self.middle_table('tr',recursive=False)[4].td.table
+		print marks_row
+		marks_dict = {}
+		for marks_rec in marks_row.find_all('tr',recursive=False)[3:]:
+			subject_name = marks_rec.find_all('td',recursive=False)[0].string
+			print subject_name
