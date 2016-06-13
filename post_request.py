@@ -145,3 +145,11 @@ class Result(object):
 	@lazy_property
 	def date_of_birth:
 		return credential_row['date_of_birth']
+
+	@lazy_property
+	def dict:
+		result_dict = {}
+		result_dict.update(self.reg_row)
+		result_dict.update(self.degree_row)
+		result_dict.update(self.credential_row)
+		return result_dict
