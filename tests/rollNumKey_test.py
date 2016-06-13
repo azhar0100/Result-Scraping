@@ -1,4 +1,4 @@
-from post_request import get_result
+from post_request import Result
 
 # {'regNum': u'10025-23961-2013', 'examType': u'ANNUAL', 'rollNum': u'170988', 'degree': u'SECONDARY SCHOOL CERTIFICATE ', 'year': u'2015', 'group': u'SCIENCE'} 
 
