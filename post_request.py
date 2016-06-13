@@ -76,10 +76,19 @@ class Result(object):
 		self.soup = BeautifulSoup(html_response.text)
 		self.middle_table = self.soup.select(".td2")[0].table
 
+	@lazy_property
 	def reg_row(self):
 		middle_table = result_soup.select(".td2")[0].table
 		reg_row = middle_table('tr',recursive=False)[1].td.table.tr
-		self._rollNum : get_tag_contents(reg_row)[0].h5.u.string.strip()
-		self._regNum  : get_tag_contents(reg_row)[2].p.u.string.strip()
+		rollNum = get_tag_contents(reg_row)[0].h5.u.string.strip()
+		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
+		return (rollNum,regNum)
 
+	@lazy_property
+	def rollNum(self):
+		return self.reg_row[0]
+
+	@lazy_property
+	def regNum(self):
+		return self.reg_row[1]
 
