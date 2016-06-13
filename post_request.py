@@ -44,11 +44,9 @@ class Result(object):
 		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
 		return {"rollNum" : rollNum, "regNum":regNum}
 
-	@lazy_property
 	def rollNum(self):
 		return self.reg_row['rollNum']
 
-	@lazy_property
 	def regNum(self):
 		return self.reg_row['regNum']
 
@@ -63,19 +61,15 @@ class Result(object):
 			"group"    : degree_row.select('u')[1].string.strip()
 		}
 
-	@lazy_property
 	def degree(self):
 		return self.degree_row['degree']
 
-	@lazy_property
 	def examType(self):
 		return self.degree_row['examType']
 
-	@lazy_property
 	def year(self):
 		return self.degree_row['year']
 
-	@lazy_property
 	def group(self):
 		return self.degree_row['group']
 
@@ -90,19 +84,15 @@ class Result(object):
 			"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
 		}
 
-	@lazy_property
 	def student_name(self):
 		return credential_row['student_name']
 
-	@lazy_property
 	def father_name(self):
 		return credential_row['father_name']
 
-	@lazy_property
 	def centre(self):
 		return credential_row['centre']
 
-	@lazy_property
 	def date_of_birth(self):
 		return credential_row['date_of_birth']
 
