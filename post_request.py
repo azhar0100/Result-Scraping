@@ -53,7 +53,7 @@ class Result(object):
 		return self.reg_row['regNum']
 
 	@lazy_property
-	def degree_row:
+	def degree_row(self):
 		degree_row = self.middle_table('tr',recursive=False)[2].select('h4')[0]
 		degree_and_exam_str = list(degree_row.stripped_strings)[0]
 		return {
@@ -80,34 +80,34 @@ class Result(object):
 		return self.degree_row['group']
 
 	@lazy_property
-	def credential_row:
-		credential_row = middle_table('tr',recursive=False)[3].table
+	def credential_row(self):
+		credential_row = self.middle_table('tr',recursive=False)[3].table
 
-	return {
-		"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
-		"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
-		"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string)
-		"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string,"%d/%m/%Y").date()
-	}
+		return {
+			"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
+			"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
+			"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string),
+			"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
+		}
 
 	@lazy_property
-	def student_name:
+	def student_name(self):
 		return credential_row['student_name']
 
 	@lazy_property
-	def father_name:
+	def father_name(self):
 		return credential_row['father_name']
 
 	@lazy_property
-	def centre:
+	def centre(self):
 		return credential_row['centre']
 
 	@lazy_property
-	def date_of_birth:
+	def date_of_birth(self):
 		return credential_row['date_of_birth']
 
 	@lazy_property
-	def dict:
+	def dict(self):
 		result_dict = {}
 		result_dict.update(self.reg_row)
 		result_dict.update(self.degree_row)
