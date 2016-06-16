@@ -9,6 +9,18 @@ url = 'http://result.biselahore.com/Home/Result'
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 # params = { 'degree': 'SSC' , 'rollNum': '' , 'session': '2' , 'year': '2015' }
 
+def lazy_property(fn):
+	attr_name = '__lazy__' + fn.__name__
+
+	@property
+	def _lazy_property(self):
+		if not hasattr(self,attr_name):
+			setattr(self,attr_name,fn(self))
+		return getattr(self,attr_name)
+
+	return _lazy_property
+
+
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
 	return requests.post(url , data=params , headers=headers)
@@ -16,40 +28,79 @@ def get_html_response(rollNum,degree,session,year):
 def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
+
+class Result(object):
+
+	def __init__(self,rollNum,degree,session,year):
+		html_response = get_html_response(rollNum,degree,session,year)
+		self.soup = BeautifulSoup(html_response.text)
+		self.middle_table = self.soup.select(".td2")[0].table
+
+	@lazy_property
+	def reg_row(self):
+		middle_table = self.soup.select(".td2")[0].table
+		reg_row = middle_table('tr',recursive=False)[1].td.table.tr
+		rollNum = get_tag_contents(reg_row)[0].h5.u.string.strip()
+		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
+		return {"rollNum" : rollNum, "regNum":regNum}
+
+	@lazy_property
+	def degree_row(self):
+		degree_row = self.middle_table('tr',recursive=False)[2].select('h4')[0]
+		degree_and_exam_str = list(degree_row.stripped_strings)[0]
+		return {
+			"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
+			"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
+			"year"     : datetime.strptime(degree_row.u.string.strip(),"%Y").date() ,
+			"group"    : degree_row.select('u')[1].string.strip()
+		}
+
+	@lazy_property
+	def credential_row(self):
+		credential_row = self.middle_table('tr',recursive=False)[3].table
+
+		return {
+			"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
+			"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
+			"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string),
+			"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
+		}
+
 	
-def get_result(rollNum,degree,session,year):
-	html_response = get_html_response(rollNum,degree,session,year)
-	result_soup = BeautifulSoup(html_response.text)
-	result_dict = {}
+	@property
+	def dict(self):
+		result_dict = {}
+		result_dict.update(self.reg_row)
+		result_dict.update(self.degree_row)
+		result_dict.update(self.credential_row)
+		return result_dict
 
-	# The result page has two tables , one to the left and other to the right.
-	# The page uses an ancient table layout.The middle one has the actual data.
-	# The middle_table is divided into many <tr> elements which are handled separately.
+	def __getattr__(self,name):
+		try:
+			return self.dict[name]
+		except KeyError:
+			raise AttributeError
 
-	middle_table = result_soup.select(".td2")[0].table
+class Result_part2(Result):
 
-	reg_row = middle_table('tr',recursive=False)[1].td.table.tr
-	result_dict.update({
-		"rollNum" : get_tag_contents(reg_row)[0].h5.u.string.strip() ,
-		"regNum"  : get_tag_contents(reg_row)[2].p.u.string.strip()
-	})
+	@lazy_property
+	def marks_row(self):
+		marks_row = self.middle_table('tr',recursive=False)[4].td.table
+		marks_dict = {}
+		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
+			marks_rec_td = marks_rec.find_all('td',recursive=False)
+			subject_name = marks_rec_td[0].string.strip()
+			total_marks = int(re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0])
+			obtained_marks = int(marks_rec_td[5].string)
+			if marks_rec_td[8].string.strip() == 'PASS':
+				pass_status = True
+			else:
+				pass_status = False
+			marks_dict[subject_name] = (subject_name,obtained_marks,total_marks,pass_status)
+		return marks_dict
 
-	degree_row = middle_table('tr',recursive=False)[2].select('h4')[0]
-	degree_and_exam_str = list(degree_row.stripped_strings)[0]
-	result_dict.update({
-		"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
-		"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
-		"year"     : datetime.strptime(degree_row.u.string.strip(),"%Y").date() ,	
-		"group"    : degree_row.select('u')[1].string.strip()
-	})
-
-	credential_row = middle_table('tr',recursive=False)[3].table
-
-	result_dict.update({
-		"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
-		"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
-		"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string)
-	})
-	result_dict["date_of_birth"] = datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string,"%d/%m/%Y").date()
-
-	return result_dict
+	@property
+	def dict(self):
+		result_dict = super(self.__class__,self).dict
+		result_dict.update(self.marks_row)
+		return result_dict
