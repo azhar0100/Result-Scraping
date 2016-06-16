@@ -44,12 +44,6 @@ class Result(object):
 		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
 		return {"rollNum" : rollNum, "regNum":regNum}
 
-	def rollNum(self):
-		return self.reg_row['rollNum']
-
-	def regNum(self):
-		return self.reg_row['regNum']
-
 	@lazy_property
 	def degree_row(self):
 		degree_row = self.middle_table('tr',recursive=False)[2].select('h4')[0]
@@ -60,18 +54,6 @@ class Result(object):
 			"year"     : datetime.strptime(degree_row.u.string.strip(),"%Y").date() ,
 			"group"    : degree_row.select('u')[1].string.strip()
 		}
-
-	def degree(self):
-		return self.degree_row['degree']
-
-	def examType(self):
-		return self.degree_row['examType']
-
-	def year(self):
-		return self.degree_row['year']
-
-	def group(self):
-		return self.degree_row['group']
 
 	@lazy_property
 	def credential_row(self):
@@ -84,17 +66,7 @@ class Result(object):
 			"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
 		}
 
-	def student_name(self):
-		return credential_row['student_name']
-
-	def father_name(self):
-		return credential_row['father_name']
-
-	def centre(self):
-		return credential_row['centre']
-
-	def date_of_birth(self):
-		return credential_row['date_of_birth']
+	
 	@property
 	def dict(self):
 		result_dict = {}
@@ -102,6 +74,12 @@ class Result(object):
 		result_dict.update(self.degree_row)
 		result_dict.update(self.credential_row)
 		return result_dict
+
+	def __getattr__(self,name):
+		try:
+			return self.dict[name]
+		except KeyError:
+			raise AttributeError
 
 class Result_part2(Result):
 
