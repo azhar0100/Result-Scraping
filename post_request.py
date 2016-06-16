@@ -114,6 +114,10 @@ class Result_part2(Result):
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string
-			print subject_name
 			total_marks = re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0]
-			print total_marks
+			obtained_marks = marks_rec_td[5].string
+			if marks_rec_td[8].string == 'PASS':
+				pass_status = True
+			else:
+				pass_status = False
+
