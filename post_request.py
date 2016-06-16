@@ -120,4 +120,6 @@ class Result_part2(Result):
 				pass_status = True
 			else:
 				pass_status = False
+			marks_dict[subject_name] = (subject_name,obtained_marks,total_marks,pass_status)
 
+		return marks_dict
