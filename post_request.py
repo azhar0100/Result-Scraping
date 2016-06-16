@@ -95,8 +95,7 @@ class Result(object):
 
 	def date_of_birth(self):
 		return credential_row['date_of_birth']
-
-	@lazy_property
+	@property
 	def dict(self):
 		result_dict = {}
 		result_dict.update(self.reg_row)
@@ -109,17 +108,21 @@ class Result_part2(Result):
 	@lazy_property
 	def marks_row(self):
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
-		print marks_row
 		marks_dict = {}
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
-			subject_name = marks_rec_td[0].string
-			total_marks = re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0]
-			obtained_marks = marks_rec_td[5].string
-			if marks_rec_td[8].string == 'PASS':
+			subject_name = marks_rec_td[0].string.strip()
+			total_marks = int(re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0])
+			obtained_marks = int(marks_rec_td[5].string)
+			if marks_rec_td[8].string.strip() == 'PASS':
 				pass_status = True
 			else:
 				pass_status = False
 			marks_dict[subject_name] = (subject_name,obtained_marks,total_marks,pass_status)
-
 		return marks_dict
+
+	@property
+	def dict(self):
+		result_dict = super(self.__class__,self).dict
+		result_dict.update(self.marks_row)
+		return result_dict
