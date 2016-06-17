@@ -103,8 +103,8 @@ class Result_part2(Result):
 		total_marks_row =  get_tag_contents(marks_row.find_all('tr',recursive=False)[-1])
 		total_marks = int(total_marks_row[1].string)
 		mark_string_groups = re.compile(r'(\S+)').findall(total_marks_row[2].string)
-		pass_status = mark_string_groups[2].strip()
-		obtained_marks = mark_string_groups[3].strip()
+		pass_status = mark_string_groups[2].strip() == 'PASS'
+		obtained_marks = int(mark_string_groups[3].strip())
 		return {
 			'subjects':marks_dict,
 			'marks' : (obtained_marks,total_marks,pass_status)
