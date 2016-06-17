@@ -33,7 +33,7 @@ class Result(object):
 
 	def __init__(self,rollNum,degree,session,year):
 		html_response = get_html_response(rollNum,degree,session,year)
-		self.soup = BeautifulSoup(html_response.text)
+		self.soup = BeautifulSoup(html_response.text,'lxml')
 		self.middle_table = self.soup.select(".td2")[0].table
 
 	@lazy_property
@@ -97,7 +97,18 @@ class Result_part2(Result):
 			else:
 				pass_status = False
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
-		return marks_dict
+
+		total_marks_row =  get_tag_contents(marks_row.find_all('tr',recursive=False)[-1])
+		total_marks = int(total_marks_row[1].string)
+		mark_string = total_marks_row[2].string
+		non_whitespace = re.compile(r'(\S+)')
+		mark_string_groups = non_whitespace.findall(mark_string)
+		pass_status = mark_string_groups[2].strip()
+		obtained_marks = mark_string_groups[3].strip()
+		return {
+			'subjects':marks_dict,
+			'marks' : (obtained_marks,total_marks,pass_status)
+		}
 
 	@property
 	def dict(self):
