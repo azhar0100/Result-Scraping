@@ -33,6 +33,8 @@ class Result(object):
 
 	def __init__(self,rollNum,degree,session,year):
 		html_response = get_html_response(rollNum,degree,session,year)
+		if re.search(r'Student not found.',html_response.text):
+			raise IndexError("Student Not Found for this data")
 		self.soup = BeautifulSoup(html_response.text,'lxml')
 		self.middle_table = self.soup.select(".td2")[0].table
 
