@@ -83,7 +83,19 @@ class Result(object):
 		except KeyError:
 			raise AttributeError
 
-class Result_part2(Result):
+class ResultMarks(Result):
+
+	@lazy_property
+	def marks_row(self):
+		raise NotImplementedError
+
+	@property
+	def dict(self):
+		result_dict = super(self.__class__,self).dict
+		result_dict.update(self.marks_row)
+		return result_dict
+
+class Result_part2(ResultMarks):
 
 	@lazy_property
 	def marks_row(self):
@@ -109,9 +121,3 @@ class Result_part2(Result):
 			'subjects':marks_dict,
 			'marks' : (obtained_marks,total_marks,pass_status)
 		}
-
-	@property
-	def dict(self):
-		result_dict = super(self.__class__,self).dict
-		result_dict.update(self.marks_row)
-		return result_dict
