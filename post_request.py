@@ -29,11 +29,13 @@ def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
 
-class Result(object):
+class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year):
 		html_response = get_html_response(rollNum,degree,session,year)
-		self.soup = BeautifulSoup(html_response.text)
+		if re.search(r'Student not found.',html_response.text):
+			raise IndexError("Student Not Found for this data")
+		self.soup = BeautifulSoup(html_response.text,'lxml')
 		self.middle_table = self.soup.select(".td2")[0].table
 
 	@lazy_property
@@ -77,11 +79,23 @@ class Result(object):
 
 	def __getattr__(self,name):
 		try:
-			return self.dict[name]
+			return object.__getattribute__(self,'dict')[name]
 		except KeyError:
-			raise AttributeError
+			return object.__getattribute__(self,name)
 
-class Result_part2(Result):
+class ResultMarks(BaseResult):
+
+	@lazy_property
+	def marks_row(self):
+		raise NotImplementedError
+
+	@property
+	def dict(self):
+		result_dict = BaseResult.dict.fget(self)
+		result_dict.update(self.marks_row)
+		return result_dict
+
+class Result_part2(ResultMarks):
 
 	@lazy_property
 	def marks_row(self):
@@ -92,15 +106,43 @@ class Result_part2(Result):
 			subject_name = marks_rec_td[0].string.strip()
 			total_marks = int(re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0])
 			obtained_marks = int(marks_rec_td[5].string)
-			if marks_rec_td[8].string.strip() == 'PASS':
-				pass_status = True
-			else:
-				pass_status = False
-			marks_dict[subject_name] = (subject_name,obtained_marks,total_marks,pass_status)
-		return marks_dict
+			pass_status =  marks_rec_td[8].string.strip() == 'PASS'
+			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
 
-	@property
-	def dict(self):
-		result_dict = super(self.__class__,self).dict
-		result_dict.update(self.marks_row)
-		return result_dict
+		total_marks_row =  get_tag_contents(marks_row.find_all('tr',recursive=False)[-1])
+		total_marks = int(total_marks_row[1].string)
+		mark_string_groups = re.compile(r'(\S+)').findall(total_marks_row[2].string)
+		pass_status = mark_string_groups[2].strip() == 'PASS'
+		obtained_marks = int(mark_string_groups[3].strip())
+		return {
+			'subjects':marks_dict,
+			'marks' : (obtained_marks,total_marks,pass_status)
+		}
+
+class Result_part1(ResultMarks):
+
+	@lazy_property
+	def marks_row(self):
+		marks_row = self.middle_table('tr',recursive=False)[4].td.table
+		marks_dict = {}
+		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
+			marks_rec_td = marks_rec.find_all('td',recursive=False)
+			subject_name = marks_rec_td[0].string.strip()
+			total_marks = int(marks_rec_td[1].string.strip())
+			obtained_marks = int(marks_rec_td[2].string.strip())
+			pass_status = marks_rec_td[3].string.strip() == 'PASS'
+			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
+		total_marks    = sum([x[1][1] for x in marks_dict.items()])
+		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
+		return {
+			'subjects' : marks_dict ,
+			'marks'    : (obtained_marks,total_marks,pass_status)
+		}
+
+def Result(rollNum,degree,session,year):
+	if session == '1':
+		return Result_part1(rollNum,degree,session,year)
+	if session == '2':
+		return Result_part2(rollNum,degree,session,year)
+	
