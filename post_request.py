@@ -132,7 +132,6 @@ class Result_part1(ResultMarks):
 			obtained_marks = int(marks_rec_td[2].string.strip())
 			pass_status = marks_rec_td[3].string.strip() == 'PASS'
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
-
 		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
 		total_marks    = sum([x[1][1] for x in marks_dict.items()])
 		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
