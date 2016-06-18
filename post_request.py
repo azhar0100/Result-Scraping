@@ -29,7 +29,7 @@ def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
 
-class Result(object):
+class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year):
 		html_response = get_html_response(rollNum,degree,session,year)
@@ -79,11 +79,11 @@ class Result(object):
 
 	def __getattr__(self,name):
 		try:
-			return self.dict[name]
+			return object.__getattribute__(self,'dict')[name]
 		except KeyError:
-			raise AttributeError
+			return object.__getattribute__(self,name)
 
-class ResultMarks(Result):
+class ResultMarks(BaseResult):
 
 	@lazy_property
 	def marks_row(self):
@@ -91,7 +91,7 @@ class ResultMarks(Result):
 
 	@property
 	def dict(self):
-		result_dict = Result.dict.fget(self)
+		result_dict = BaseResult.dict.fget(self)
 		result_dict.update(self.marks_row)
 		return result_dict
 
@@ -139,3 +139,10 @@ class Result_part1(ResultMarks):
 			'subjects' : marks_dict ,
 			'marks'    : (obtained_marks,total_marks,pass_status)
 		}
+
+def Result(rollNum,degree,session,year):
+	if session == '1':
+		return Result_part1(rollNum,degree,session,year)
+	if session == '2':
+		return Result_part2(rollNum,degree,session,year)
+	
