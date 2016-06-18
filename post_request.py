@@ -132,6 +132,9 @@ class Result_part1(ResultMarks):
 			obtained_marks = int(marks_rec_td[2].string.strip())
 			pass_status = marks_rec_td[3].string.strip() == 'PASS'
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+
+		total_marks_row = marks_row.find_all('tr',recursive=False)[-1]
+		print total_marks_row
 		return {
 			'subjects' : marks_dict
 		}
