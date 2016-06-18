@@ -29,6 +29,11 @@ def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
 
+def sumlist(numlist):
+	if len(numlist) == 1:
+		return numlist[0]
+	return numlist[0] + sumlist(numlist[1:])
+
 class Result(object):
 
 	def __init__(self,rollNum,degree,session,year):
@@ -132,6 +137,11 @@ class Result_part1(ResultMarks):
 			obtained_marks = int(marks_rec_td[2].string.strip())
 			pass_status = marks_rec_td[3].string.strip() == 'PASS'
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+
+		obtained_marks = sumlist([x[1][0] for x in marks_dict.items()])
+		total_marks    = sumlist([x[1][1] for x in marks_dict.items()])
+		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
 		return {
-			'subjects' : marks_dict
+			'subjects' : marks_dict ,
+			'marks'    : (obtained_marks,total_marks,pass_status)
 		}
