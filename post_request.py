@@ -133,7 +133,8 @@ class Result_part1(ResultMarks):
 			subject_name = marks_rec_td[0].string.strip()
 			total_marks = int(marks_rec_td[1].string.strip())
 			obtained_marks = int(marks_rec_td[2].string.strip())
-			marks_dict[subject_name] = (obtained_marks,total_marks)
+			pass_status = marks_rec_td[3].string.strip() == 'PASS'
+			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
 		return {
 			'subjects' : marks_dict
 		}
