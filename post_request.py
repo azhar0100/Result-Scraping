@@ -91,7 +91,7 @@ class ResultMarks(Result):
 
 	@property
 	def dict(self):
-		result_dict = super(self.__class__,self).dict
+		result_dict = Result.dict.fget(self)
 		result_dict.update(self.marks_row)
 		return result_dict
 
@@ -120,4 +120,20 @@ class Result_part2(ResultMarks):
 		return {
 			'subjects':marks_dict,
 			'marks' : (obtained_marks,total_marks,pass_status)
+		}
+
+class Result_part1(ResultMarks):
+
+	@lazy_property
+	def marks_row(self):
+		marks_row = self.middle_table('tr',recursive=False)[4].td.table
+		marks_dict = {}
+		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
+			marks_rec_td = marks_rec.find_all('td',recursive=False)
+			subject_name = marks_rec_td[0].string.strip()
+			total_marks = int(marks_rec_td[1].string.strip())
+			obtained_marks = int(marks_rec_td[2].string.strip())
+			marks_dict[subject_name] = (obtained_marks,total_marks)
+		return {
+			'subjects' : marks_dict
 		}
