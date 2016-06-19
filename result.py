@@ -105,7 +105,11 @@ class Result_part2(ResultMarks):
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
 			total_marks = int(re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0])
-			obtained_marks = int(marks_rec_td[5].string)
+			try:
+				obtained_marks = int(marks_rec_td[5].string)
+			except ValueError:
+				obtained_marks = 0
+
 			pass_status =  marks_rec_td[8].string.strip() == 'PASS'
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
 
