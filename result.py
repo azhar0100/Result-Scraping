@@ -79,9 +79,9 @@ class BaseResult(object):
 
 	def __getattr__(self,name):
 		try:
-			return object.__getattribute__(self,'dict')[name]
+			return self.dict[name]
 		except KeyError:
-			return object.__getattribute__(self,name)
+			raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -111,9 +111,12 @@ class Result_part2(ResultMarks):
 
 		total_marks_row =  get_tag_contents(marks_row.find_all('tr',recursive=False)[-1])
 		total_marks = int(total_marks_row[1].string)
-		mark_string_groups = re.compile(r'(\S+)').findall(total_marks_row[2].string)
-		pass_status = mark_string_groups[2].strip() == 'PASS'
-		obtained_marks = int(mark_string_groups[3].strip())
+		# mark_string_groups = re.compile(r'(\S+)').findall(total_marks_row[2].string)
+		# pass_status = mark_string_groups[2].strip() == 'PASS'
+		# obtained_marks = mark_string_groups[3].strip()
+		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
+		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
+
 		return {
 			'subjects':marks_dict,
 			'marks' : (obtained_marks,total_marks,pass_status)
