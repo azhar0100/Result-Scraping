@@ -112,12 +112,7 @@ class Result_part2(ResultMarks):
 
 			pass_status =  marks_rec_td[8].string.strip() == 'PASS'
 			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
-
-		total_marks_row =  get_tag_contents(marks_row.find_all('tr',recursive=False)[-1])
-		total_marks = int(total_marks_row[1].string)
-		# mark_string_groups = re.compile(r'(\S+)').findall(total_marks_row[2].string)
-		# pass_status = mark_string_groups[2].strip() == 'PASS'
-		# obtained_marks = mark_string_groups[3].strip()
+		total_marks = sum([x[1][1] for x in marks_dict.items()])
 		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
 		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
 
