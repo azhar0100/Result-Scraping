@@ -29,12 +29,17 @@ def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
 
+class StudentNotFound(Exception):
+
+	def __init__(self,arg):
+		Exception.__init__(self,arg)
+
 class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year):
 		html_response = get_html_response(rollNum,degree,session,year)
 		if re.search(r'Student not found.',html_response.text):
-			raise IndexError("Student Not Found for this data")
+			raise StudentNotFound("Student Not Found for this data")
 		self.rollNum = rollNum
 		self.degree = degree
 		self.session = session
