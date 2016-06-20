@@ -14,24 +14,30 @@ def call_result(arg_tuple):
 	except Exception as e:
 		return e
 
-def result_rollNum(arg_tuple):
-	return jdump(call_result(arg_tuple).dict)
-
 # def result_rollNum(arg_tuple):
-	# return call_result(arg_tuple).params[0]
+# 	return jdump(call_result(arg_tuple).dict)
+
+def result_rollNum(arg_tuple):
+	try:
+		return (call_result(arg_tuple).rollNum,1) 
+	except Exception as e:
+		return (arg_tuple[0],0)
 
 if __name__ == "__main__":
-	ROll_NUM_LIST = range(171384,171393)
-	POOL_SIZE = 10
+	with open('rollNumFile.txt') as f:
+		lines = f.readlines()
+		avoid_rollNums = [int(eval(x)[0]) for x in lines]
+	ROll_NUM_LIST = [x for x in range(170000,179999) if  x not in avoid_rollNums]
+	POOL_SIZE = 12
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(result_rollNum,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
 	# print results
 	print('started')
-	rollNumFile = open("rollNumFile.txt",'w')
 	for result in results:
-		print('working')
+		# print('working')
 		try:
 			print(result,file=rollNumFile)
+			print(result)
 		except:
 			break
 	pool.close()
