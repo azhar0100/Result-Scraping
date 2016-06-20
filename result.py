@@ -46,18 +46,15 @@ class BaseResult(object):
 	def reg_row(self):
 		middle_table = self.soup.select(".td2")[0].table
 		reg_row = middle_table('tr',recursive=False)[1].td.table.tr
-		rollNum = get_tag_contents(reg_row)[0].h5.u.string.strip()
 		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
-		return {"rollNum" : rollNum, "regNum":regNum}
+		return {"regNum":regNum}
 
 	@lazy_property
 	def degree_row(self):
 		degree_row = self.middle_table('tr',recursive=False)[2].select('h4')[0]
 		degree_and_exam_str = list(degree_row.stripped_strings)[0]
 		return {
-			"degree"   : re.search(r'([^()]+)\(',degree_and_exam_str).groups()[0].strip() ,
 			"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
-			"year"     : datetime.strptime(degree_row.u.string.strip(),"%Y").date() ,
 			"group"    : degree_row.select('u')[1].string.strip()
 		}
 
