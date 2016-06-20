@@ -37,6 +37,7 @@ class BaseResult(object):
 			raise IndexError("Student Not Found for this data")
 		self.soup = BeautifulSoup(html_response.text,'lxml')
 		self.middle_table = self.soup.select(".td2")[0].table
+		self.params = (rollNum,degree,session,year)
 
 	@lazy_property
 	def reg_row(self):
