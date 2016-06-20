@@ -35,12 +35,18 @@ class BaseResult(object):
 		html_response = get_html_response(rollNum,degree,session,year)
 		if re.search(r'Student not found.',html_response.text):
 			raise IndexError("Student Not Found for this data")
-		self.soup = BeautifulSoup(html_response.text,'lxml')
-		self.middle_table = self.soup.select(".td2")[0].table
 		self.rollNum = rollNum
 		self.degree = degree
 		self.session = session
 		self.year = year
+
+	@lazy_property
+	def soup(self):
+		return BeautifulSoup(html_response.text,'lxml')
+
+	@lazy_property
+	def middle_table(self):
+		self.middle_table = self.soup.select(".td2")[0].table
 
 	@lazy_property
 	def reg_row(self):
