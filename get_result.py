@@ -20,8 +20,10 @@ def result_rollNum(arg_tuple):
 		return (call_result(arg_tuple).rollNum,1) 
 	except StudentNotFound as e:
 		return (arg_tuple[0],0)
-	except Exception as e:
+	except IOError as e:
 		return (arg_tuple[0],2)
+	except Exception as e:
+		return (arg_tuple[0],3)
 
 if __name__ == "__main__":
 	with open('rollNumFile.txt','r') as f:
