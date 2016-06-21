@@ -14,9 +14,6 @@ def call_result(arg_tuple):
 	except Exception as e:
 		return e
 
-# def result_rollNum(arg_tuple):
-# 	return jdump(call_result(arg_tuple).dict)
-
 def result_rollNum(arg_tuple):
 	try:
 		return (call_result(arg_tuple).rollNum,1) 
