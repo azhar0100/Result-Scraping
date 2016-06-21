@@ -2,7 +2,7 @@
 
 import sqlite3
 
-rollNumFile = open('rollNumFi.txt','r')
+rollNumFile = open('rollNumFile.txt','r')
 conn = sqlite3.connect('rollNumFile.sqlite')
 c = conn.cursor()
 
