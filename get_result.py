@@ -26,17 +26,16 @@ def result_rollNum(arg_tuple):
 		return (arg_tuple[0],2)
 
 if __name__ == "__main__":
-	with open('rollNumFile.txt') as f:
+	with open('rollNumFile.txt','r') as f:
 		lines = f.readlines()
 		avoid_rollNums = [int(eval(x)[0]) for x in lines]
-	ROll_NUM_LIST = [x for x in range(170000,179999) if  x not in avoid_rollNums]
+	ROll_NUM_LIST = [x for x in range(170000,180000) if  x not in avoid_rollNums]
 	POOL_SIZE = 12
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(result_rollNum,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
-	# print results
+	rollNumFile = open('rollNumFile.txt','a')
 	print('started')
 	for result in results:
-		# print('working')
 		try:
 			print(result,file=rollNumFile)
 			print(result)
