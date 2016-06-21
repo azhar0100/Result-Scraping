@@ -26,7 +26,7 @@ if __name__ == "__main__":
 	with open('rollNumFile.txt','r') as f:
 		lines = f.readlines()
 		avoid_rollNums = [int(eval(x)[0]) for x in lines]
-	ROll_NUM_LIST = [x for x in range(170000,180000) if  x not in avoid_rollNums]
+	ROll_NUM_LIST = [x for x in range(100000,200000) if  x not in avoid_rollNums]
 	POOL_SIZE = 12
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(result_rollNum,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
