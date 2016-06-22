@@ -40,6 +40,7 @@ if __name__ == "__main__":
 		except sqlite3.IntegrityError:
 			c.execute('''UPDATE rollnums SET status = {st} WHERE rollnum={rn}'''.format(rn=result[0],st=result[1]))
 		conn.commit()
+		print(result)
 	pool.close()
 	pool.join()
 
