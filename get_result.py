@@ -33,14 +33,13 @@ if __name__ == "__main__":
 	POOL_SIZE = 12
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(result_rollNum,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
-	rollNumFile = open('rollNumFile.txt','a')
 	print('started')
 	for result in results:
 		try:
-			print(result,file=rollNumFile)
-			print(result)
-		except:
-			break
+			c.execute('''INSERT INTO rollnums VALUES({rn},{st})'''.format(rn=result[0],st=result[1]))
+		except sqlite3.IntegrityError:
+			c.execute('''UPDATE rollnums SET status = {st} WHERE rollnum={rn}'''.format(rn=result[0],st=result[1]))
+		conn.commit()
 	pool.close()
 	pool.join()
 
