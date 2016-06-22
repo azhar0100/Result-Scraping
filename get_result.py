@@ -37,9 +37,9 @@ if __name__ == "__main__":
 	print('started')
 	for result in results:
 		try:
-			c.execute('''INSERT INTO rollnums VALUES({rn},{st})'''.format(rn=result[0],st=result[1]))
+			c.execute(r'''INSERT INTO rollnums VALUES({rn},{st},{ht})'''.format(rn=result[0],st=result[1],ht=result[2]))
 		except sqlite3.IntegrityError:
-			c.execute('''UPDATE rollnums SET status = {st} WHERE rollnum={rn}'''.format(rn=result[0],st=result[1]))
+			c.execute(r'''UPDATE rollnums SET status = {st}, html = {ht} WHERE rollnum={rn}'''.format(rn=result[0],st=result[1],ht=result[2]))
 		conn.commit()
 		print(result)
 	pool.close()
