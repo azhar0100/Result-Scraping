@@ -34,7 +34,6 @@ if __name__ == "__main__":
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(result_rollNum,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
 	rollNumFile = open('rollNumFile.txt','a')
-	print('\n',file=rollNumFile)
 	print('started')
 	for result in results:
 		try:
