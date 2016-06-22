@@ -37,8 +37,8 @@ class StudentNotFound(Exception):
 class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year):
-		html_response = get_html_response(rollNum,degree,session,year)
-		if re.search(r'Student not found.',html_response.text):
+		self.html = get_html_response(rollNum,degree,session,year).text
+		if re.search(r'Student not found.',self.html):
 			raise StudentNotFound("Student Not Found for this data")
 		self.rollNum = rollNum
 		self.degree = degree
@@ -47,7 +47,7 @@ class BaseResult(object):
 
 	@lazy_property
 	def soup(self):
-		return BeautifulSoup(html_response.text,'lxml')
+		return BeautifulSoup(self.html,'lxml')
 
 	@lazy_property
 	def middle_table(self):
