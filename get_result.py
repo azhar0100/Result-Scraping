@@ -26,7 +26,7 @@ def result_rollNum(arg_tuple):
 if __name__ == "__main__":
 	conn = sqlite3.connect('rollNumFile.sqlite')
 	c = conn.cursor()
-	avoid_rollNums = c.execute('''SELECT rollnum FROM rollnums''').fetchall()
+	avoid_rollNums = set(c.execute('''SELECT rollnum FROM rollnums''').fetchall())
 	print("Started building ROll_NUM_LIST")
 	ROll_NUM_LIST = [x for x in range(100000,200000) if  x not in avoid_rollNums]
 	print("Finished building ROll_NUM_LIST")
