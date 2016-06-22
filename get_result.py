@@ -6,6 +6,7 @@ from result import Result,StudentNotFound
 from time import time
 from json import dumps as jdump
 import re
+import sqlite3
 start_time = time()
 
 
@@ -23,10 +24,9 @@ def result_rollNum(arg_tuple):
 		return (arg_tuple[0],3)
 
 if __name__ == "__main__":
-	with open('rollNumFile.txt','r') as f:
-		lines = f.readlines()
-		avoid_rollNums = [int(eval(x)[0]) for x in lines if eval(x)[1] == 1 ]
-
+	conn = sqlite3.connect('rollNumFile.sqlite')
+	c = conn.cursor()
+	avoid_rollNums = c.execute('''SELECT rollnum FROM rollnums''').fetchall()
 	print("Started building ROll_NUM_LIST")
 	ROll_NUM_LIST = [x for x in range(100000,200000) if  x not in avoid_rollNums]
 	print("Finished building ROll_NUM_LIST")
