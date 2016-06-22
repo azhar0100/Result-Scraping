@@ -13,6 +13,8 @@ rollnums = [(int(x[0]),x[1]) for x in [eval(x) for x in rollNumFile.readlines()]
 
 for rollnum in rollnums:
 	print "On rollnum" , rollnum
-	c.execute('''INSERT INTO rollnums VALUES({rn},{st})'''.format(rn=rollnum[0],st=rollnum[1]))
-
+	try:
+		c.execute('''INSERT INTO rollnums VALUES({rn},{st})'''.format(rn=rollnum[0],st=rollnum[1]))
+	except sqlite3.IntegrityError:
+		c.execute('''UPDATE rollnums SET status = {st} WHERE rollnum={rn}'''.format(rn=rollnum[0],st=rollnum[1]))
 conn.commit()
