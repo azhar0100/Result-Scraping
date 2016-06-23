@@ -4,7 +4,6 @@ from __future__ import print_function
 from multiprocessing.dummy import Pool
 from result import Result,StudentNotFound
 from time import time
-from json import dumps as jdump
 import re
 import sqlite3
 start_time = time()
