@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	print("Started building ROll_NUM_LIST")
 	ROll_NUM_LIST = [x for x in range(100000,200000) if  x not in avoid_rollNums]
 	print("Finished building ROll_NUM_LIST")
-	POOL_SIZE = 12
+	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
 	results = pool.imap(get_result,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
 	print('started')
