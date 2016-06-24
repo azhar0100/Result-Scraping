@@ -32,7 +32,7 @@ if __name__ == "__main__":
 	print("Finished building ROll_NUM_LIST")
 	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
-	results = pool.imap(get_result,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
+	results = pool.imap_unordered(get_result,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
 	print('started')
 	for result in results:
 		try:
