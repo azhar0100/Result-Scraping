@@ -4,10 +4,16 @@ from __future__ import print_function
 from multiprocessing.dummy import Pool
 from result import Result,StudentNotFound
 from time import time
+from itertools import islice
 import re
 import sqlite3
 start_time = time()
 
+def lazy_imap(func,arglist,pool,chunksize=1):
+	for chunk in islice(arglist,chunksize):
+		chunk_results = pool.imap_unordered(func,chunk)
+		for chunk_result in chunk_result:
+			yield chunk_result
 
 def call_result(arg_tuple):
 	return Result(*arg_tuple)
