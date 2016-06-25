@@ -49,12 +49,16 @@ if __name__ == "__main__":
 	pool = Pool(POOL_SIZE)
 	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROll_NUM_LIST],pool,100)
 	print('started')
+	count = 0
 	for result in results:
+		count += 1
 		try:
 			c.execute(r'''INSERT INTO rollnums VALUES(?,?,?)''',(result[0],result[1],result[2]))
 		except sqlite3.IntegrityError:
 			c.execute(r'''UPDATE rollnums SET status = ?, html = ? WHERE rollnum=?''',(result[1],result[2],result[0]))
-		conn.commit()
+		if count % 100 == 0:
+			print("Commit Now!")
+			conn.commit()
 		print(result[0:2])
 	print( "========seconds=============" , time()-start_time)
 	pool.close()
