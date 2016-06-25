@@ -39,7 +39,7 @@ if __name__ == "__main__":
 	start_time = time()
 	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
-	results = pool.imap_unordered(get_result,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST))
+	results = lazy_imap(get_result,((str(x),'SSC','2','2015') for x in ROll_NUM_LIST),pool,100)
 	print('started')
 	for result in results:
 		try:
