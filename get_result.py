@@ -36,6 +36,12 @@ def get_result(arg_tuple):
 	except Exception as e:
 		return (arg_tuple[0],3,'')
 
+def deep_query(cursor):
+	return cursor.execute(r'''SELECT rollnum FROM rollnums WHERE html!="" OR status=0 ''').fetchall()
+
+def shallow_query(cursor):
+	return cursor.execute(r'''SELECT rollnum FROM rollnums ''').fetchall()
+
 if __name__ == "__main__":
 	conn = sqlite3.connect('rollNumFile.sqlite')
 	c = conn.cursor()
