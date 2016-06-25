@@ -17,9 +17,7 @@ def split_every(n, iterable):
         piece = list(islice(i, n))
 
 def lazy_imap(func,arglist,pool,chunksize=1):
-	print("chunksize",chunksize)
 	for chunk in split_every(chunksize,arglist):
-		print("chunk",chunk)
 		chunk_results = pool.imap_unordered(func,chunk)
 		for chunk_result in chunk_results:
 			yield chunk_result
@@ -50,14 +48,14 @@ if __name__ == "__main__":
 	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
 	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROll_NUM_LIST],pool,100)
-	# print('started')
+	print('started')
 	for result in results:
 		try:
 			c.execute(r'''INSERT INTO rollnums VALUES(?,?,?)''',(result[0],result[1],result[2]))
 		except sqlite3.IntegrityError:
 			c.execute(r'''UPDATE rollnums SET status = ?, html = ? WHERE rollnum=?''',(result[1],result[2],result[0]))
 		conn.commit()
-		# print(result[0:2])
+		print(result[0:2])
 	print( "========seconds=============" , time()-start_time)
 	pool.close()
 	pool.join()
