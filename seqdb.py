@@ -15,4 +15,4 @@ rollNumSeqCurs.execute('''CREATE TABLE IF NOT EXISTS rollnums (
 rollnums = c.execute('''SELECT * FROM rollnums WHERE rollnum > 200000''').fetchall()
 for rollnum in rollnums:
 	print rollnum[0:2]
-	rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',rollnum[0],rollnum[1],rollnum[2])
+	rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(rollnum[0],rollnum[1],rollnum[2]))
