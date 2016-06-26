@@ -3,9 +3,9 @@ import sqlite3
 import logging
 
 logger = logging.getLogger(__name__)
-logger.basicConfig(format='%(asctime)s - %(name)s - %(message)s')
+logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s')
 
-logger.info("Started the {mod_name} ".format(__name__))
+logger.info("Started the {} ".format(__name__))
 conn = sqlite3.connect('rollNumFile.sqlite')
 c = conn.cursor()
 logger.info("Formed the database connection:{}".format(c))
