@@ -24,7 +24,7 @@ for rollnum in rollnums:
 	count+=1
 	logger.debug("Putting rollnum:{}".format(rollnum[0:2]))
 	if not rollnum[2] == 0:
-		rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(rollnum[0],rollnum[1],rollnum[2]))
+		rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums SET rollnum=? , status = ?, html = ?)''',(rollnum[0],rollnum[1],rollnum[2]))
 	else:
 		rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,"")''',(rollnum[0],rollnum[1]))
 	if count % 1000 == 0:
