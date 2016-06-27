@@ -9,7 +9,6 @@ import re
 import sqlite3
 import logging
 start_time = time()
-logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s')
 logger = logging.getLogger('get_result')
 logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
@@ -61,12 +60,10 @@ if __name__ == "__main__":
 	c = conn.cursor()
 	avoid_rollNums = set([x[0] for x in deep_query(c)])
 	logger.info("Formed the avoid_rollNums set")
-	logger.debug("The avoid_rollNums".format(avoid_rollNums))
 	ROLL_NUM_LIST = [x for x in range(100000,999999) if  x not in avoid_rollNums]
 	logger.info("Formed the ROLL_NUM_LIST")
-	logger.debug("The ROLL_NUM_LIST")
 	start_time = time()
-	POOL_SIZE = 100
+	POOL_SIZE = 20
 	pool = Pool(POOL_SIZE)
 	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,100)
 	count = 0
