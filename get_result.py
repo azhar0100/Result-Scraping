@@ -64,10 +64,7 @@ if __name__ == "__main__":
 	count = 0
 	for result in results:
 		count += 1
-		try:
-			c.execute(r'''INSERT INTO rollnums VALUES(?,?,?)''',(result[0],result[1],result[2]))
-		except sqlite3.IntegrityError:
-			c.execute(r'''UPDATE rollnums SET status = ?, html = ? WHERE rollnum=?''',(result[1],result[2],result[0]))
+		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(result[0],result[1],result[2]))
 		if count % 100 == 0:
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
