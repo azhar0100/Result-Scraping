@@ -13,6 +13,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s',level=logging.
 logger = logging.getLogger('get_result')
 file_handler = logging.FileHandler("rollNumFile.log")
 file_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 def split_every(n, iterable):
