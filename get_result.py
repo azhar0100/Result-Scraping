@@ -48,7 +48,7 @@ if __name__ == "__main__":
 	avoid_rollNums = set([x[0] for x in deep_query(c)])
 	print( "SQLite query finished." , time()-start_time)
 	print("Started building ROll_NUM_LIST")
-	ROll_NUM_LIST = [x for x in range(200000,999999) if  x not in avoid_rollNums]
+	ROll_NUM_LIST = [x for x in range(100000,999999) if  x not in avoid_rollNums]
 	print("Finished building ROll_NUM_LIST")
 	start_time = time()
 	POOL_SIZE = 100

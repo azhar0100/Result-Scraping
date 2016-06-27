@@ -2,8 +2,8 @@
 import sqlite3
 import logging
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s',level=logging.DEBUG)
+logger = logging.getLogger('clonedb')
+logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s')
 
 logger.info("Started the {} ".format(__name__))
 conn = sqlite3.connect('rollNumFile.sqlite')
