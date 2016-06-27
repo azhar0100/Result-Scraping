@@ -64,7 +64,7 @@ if __name__ == "__main__":
 	count = 0
 	for result in results:
 		count += 1
-		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(result[0],result[1],result[2]))
+		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',result)
 		if count % 100 == 0:
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
