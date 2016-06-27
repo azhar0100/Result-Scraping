@@ -9,12 +9,17 @@ import re
 import sqlite3
 import logging
 start_time = time()
-logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(message)s')
 logger = logging.getLogger('get_result')
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler("rollNumFile.log")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
 def split_every(n, iterable):
