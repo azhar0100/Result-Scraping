@@ -15,7 +15,7 @@ rollNumSeqCurs = rollNumSeqConn.cursor()
 logger.info("Formed the database connection:{}".format(rollNumSeqCurs))
 rollNumSeqCurs.execute('''CREATE TABLE IF NOT EXISTS rollnums (
 	rollnum INTEGER PRIMARY KEY,
-	status INTEGER
+	status INTEGER,
 	html TEXT )''')
 
 rollnums = c.execute('''SELECT * FROM rollnums WHERE rollnum''')
