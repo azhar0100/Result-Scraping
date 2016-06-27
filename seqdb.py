@@ -12,7 +12,11 @@ rollNumSeqCurs.execute('''CREATE TABLE IF NOT EXISTS rollnums (
 	status INTEGER
 	html TEXT )''')
 
-rollnums = c.execute('''SELECT * FROM rollnums WHERE rollnum > 200000''').fetchall()
+rollnums = c.execute('''SELECT * FROM rollnums WHERE rollnum''').fetchall()
 for rollnum in rollnums:
-	print rollnum[0:2]
-	rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(rollnum[0],rollnum[1],rollnum[2]))
+	print rollnum[0]
+	if rollnum[0] > 200000:
+		print rollnum[0:2]
+		rollNumSeqCurs.execute('''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',(rollnum[0],rollnum[1],rollnum[2]))
+
+rollNumSeqCurs.commit()
