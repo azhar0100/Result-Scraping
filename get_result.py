@@ -62,6 +62,7 @@ if __name__ == "__main__":
 	logger.info("Formed the avoid_rollNums set")
 	ROLL_NUM_LIST = [x for x in range(100000,999999) if  x not in avoid_rollNums]
 	logger.info("Formed the ROLL_NUM_LIST")
+	ROLL_NUM_TUPLE_LIST= [(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST]
 	start_time = time()
 	POOL_SIZE = 20
 	pool = Pool(POOL_SIZE)
@@ -70,6 +71,8 @@ if __name__ == "__main__":
 	for result in results:
 		count += 1
 		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',result)
+		if result[0] == 2:
+			ROLL_NUM_TUPLE_LIST.add((str(result[0]),'SSC','2','2015'))
 		if count % 100 == 0:
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
