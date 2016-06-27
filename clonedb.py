@@ -10,7 +10,7 @@ conn = sqlite3.connect('rollNumFile.sqlite')
 c = conn.cursor()
 logger.info("Formed the database connection:{}".format(c))
 N = 2
-rollNumSeqConn = sqlite3.connect('rollNumFile-new.sqlite'.format(N))
+rollNumSeqConn = sqlite3.connect('rollNumFile-new.sqlite')
 rollNumSeqCurs = rollNumSeqConn.cursor()
 logger.info("Formed the database connection:{}".format(rollNumSeqCurs))
 rollNumSeqCurs.execute('''CREATE TABLE IF NOT EXISTS rollnums (
