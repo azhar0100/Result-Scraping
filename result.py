@@ -51,7 +51,7 @@ class BaseResult(object):
 
 	@lazy_property
 	def middle_table(self):
-		self.middle_table = self.soup.select(".td2")[0].table
+		return self.soup.select(".td2")[0].table
 
 	@lazy_property
 	def reg_row(self):
