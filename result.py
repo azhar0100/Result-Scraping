@@ -37,7 +37,7 @@ class StudentNotFound(Exception):
 class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year,html=''):
-		if html = '':
+		if html == '':
 			self.html = get_html_response(rollNum,degree,session,year).text
 		else:
 			self.html = html
