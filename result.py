@@ -157,6 +157,7 @@ class Result_part1(ResultMarks):
 			'marks'    : (obtained_marks,total_marks,pass_status)
 		}
 
+
 def Result(rollNum,degree,session,year,html=''):
 	if session == '1':
 		return Result_part1(rollNum,degree,session,year,html='')
