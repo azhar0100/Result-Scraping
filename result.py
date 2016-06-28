@@ -36,8 +36,11 @@ class StudentNotFound(Exception):
 
 class BaseResult(object):
 
-	def __init__(self,rollNum,degree,session,year):
-		self.html = get_html_response(rollNum,degree,session,year).text
+	def __init__(self,rollNum,degree,session,year,html=''):
+		if html = '':
+			self.html = get_html_response(rollNum,degree,session,year).text
+		else:
+			self.html = html
 		if re.search(r'Student not found.',self.html):
 			raise StudentNotFound("Student Not Found for this data")
 		self.rollNum = rollNum
