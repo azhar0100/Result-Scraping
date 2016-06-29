@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 from result import Result
-R = Result('171023','SSC','2','2015')
-rd = R.dict['marks']
+R = Result('171023','SSC','2','2015',html=open("../ReqResult.htm",'r').read())
+rd = R.dict
 print rd
