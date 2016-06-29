@@ -58,8 +58,7 @@ class BaseResult(object):
 
 	@lazy_property
 	def reg_row(self):
-		middle_table = self.soup.select(".td2")[0].table
-		reg_row = middle_table('tr',recursive=False)[1].td.table.tr
+		reg_row = self.middle_table('tr',recursive=False)[1].td.table.tr
 		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
 		return {"regNum":regNum}
 
@@ -114,28 +113,43 @@ class Result_part2(ResultMarks):
 
 	@lazy_property
 	def marks_row(self):
+		def convert_to_int(n):
+			try:
+				return int(n)
+			except ValueError:
+				return 0
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
-		marks_dict = {}
+		marks_p1_dict = {}
+		marks_p2_dict = {}
+		marks_total_dict = {}
+		marks_dict = {
+			'p1' : {},
+			'p2' : {},
+			'total' : {}
+		}
+
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
-			( total_p1,total_p2,total ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))
-			total_marks = int(re.search(r'.+\+([0-9]+)=.+',marks_rec_td[1].string).groups()[0])
-			try:
-				obtained_marks = int(marks_rec_td[5].string)
-			except ValueError:
-				obtained_marks = 0
+			( total_p1,total_p2,total_total ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))
 
-			pass_status =  marks_rec_td[8].string.strip() == 'PASS'
-			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
-		total_marks = sum([x[1][1] for x in marks_dict.items()])
-		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
-		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
+			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string for x in [marks_rec_td[x] for x in range(4,6)]]])
+			obtained_total = obtained_p1 + obtained_p2
 
-		return {
-			'subjects':marks_dict,
-			'marks' : (obtained_marks,total_marks,pass_status)
-		}
+			pass_status_p1 = (obtained_p1/total_p1) > (float(1)/float(3))
+			pass_status_p2 = (obtained_p2/total_p2) > (float(1)/float(3))
+			pass_status_total = pass_status_p1 and pass_status_p2
+
+			marks_dict['p1'][subject_name] = (obtained_p1,total_p1,pass_status_p1)
+			marks_dict['p2'][subject_name] = (obtained_p2,total_p2,pass_status_p2)
+			marks_dict['total'][subject_name] = (obtained_total,total_total,pass_status_total)
+
+			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
+			# pass_status =  marks_rec_td[8].string.strip() == 'PASS'
+			# marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+
+		return {}
+
 
 class Result_part1(ResultMarks):
 
