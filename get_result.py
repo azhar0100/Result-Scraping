@@ -70,14 +70,14 @@ if __name__ == "__main__":
 	start_time = time()
 	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
-	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,1000)
+	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,10000)
 	count = 0
 	for result in results:
 		count += 1
 		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',result)
 		c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
 		if result[1] == 2:
-			ROLL_NUM_TUPLE_LIST.add((str(result[0]),'SSC','2','2015'))
+			ROLL_NUM_TUPLE_LIST.append((str(result[0]),'SSC','2','2015'))
 		if count % 100 == 0:
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
