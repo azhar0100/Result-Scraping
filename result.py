@@ -89,6 +89,7 @@ class BaseResult(object):
 		result_dict.update(self.reg_row)
 		result_dict.update(self.degree_row)
 		result_dict.update(self.credential_row)
+		print "Returned Result dict"
 		return result_dict
 
 	def __getattr__(self,name):
@@ -119,9 +120,6 @@ class Result_part2(ResultMarks):
 			except ValueError:
 				return 0
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
-		marks_p1_dict = {}
-		marks_p2_dict = {}
-		marks_total_dict = {}
 		marks_dict = {
 			'p1' : {},
 			'p2' : {},
@@ -147,6 +145,17 @@ class Result_part2(ResultMarks):
 			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
 			# pass_status =  marks_rec_td[8].string.strip() == 'PASS'
 			# marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+
+		# def sum_obtained_marks(marks_dict):
+		# 	[x[1][0] for x in marks_dict.items()]
+		# 	return
+
+		print [x for x in [marks_dict[x] for x in ['p1','p2','total']]]
+		obtained_p1 = [x[1][0] for x in marks_dict['p1'].items()]
+		obtained_p2 = [x[1][0] for x in marks_dict['p2'].items()]
+
+		(obtained_p1,obtained_p2) = []
+		total_p1 = [x[1][1] for x in marks_dict['p1'].items()]
 
 		return {}
 
