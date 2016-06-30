@@ -4,6 +4,7 @@ import re
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+import logging
 
 url = 'http://result.biselahore.com/Home/Result'
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -102,11 +103,11 @@ class BaseResult(object):
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	# def __getattr__(self,name):
-	# 	try:
-	# 		return self.dict[name]
-	# 	except KeyError:
-	# 		raise AttributeError
+	def __getattr__(self,name):
+		try:
+			return self.dict[name]
+		except KeyError:
+			raise AttributeError
 
 class ResultMarks(BaseResult):
 
