@@ -20,7 +20,6 @@ def lazy_property(fn):
 
 	return _lazy_property
 
-
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
 	return requests.post(url , data=params , headers=headers)
@@ -89,14 +88,13 @@ class BaseResult(object):
 		result_dict.update(self.reg_row)
 		result_dict.update(self.degree_row)
 		result_dict.update(self.credential_row)
-		print "Returned Result dict"
 		return result_dict
 
-	def __getattr__(self,name):
-		try:
-			return self.dict[name]
-		except KeyError:
-			raise AttributeError
+	# def __getattr__(self,name):
+	# 	try:
+	# 		return self.dict[name]
+	# 	except KeyError:
+	# 		raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -120,7 +118,7 @@ class Result_part2(ResultMarks):
 			except ValueError:
 				return 0
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
-		marks_dict = {
+		subjects = {
 			'p1' : {},
 			'p2' : {},
 			'total' : {}
@@ -138,26 +136,22 @@ class Result_part2(ResultMarks):
 			pass_status_p2 = (obtained_p2/total_p2) > (float(1)/float(3))
 			pass_status_total = pass_status_p1 and pass_status_p2
 
-			marks_dict['p1'][subject_name] = (obtained_p1,total_p1,pass_status_p1)
-			marks_dict['p2'][subject_name] = (obtained_p2,total_p2,pass_status_p2)
-			marks_dict['total'][subject_name] = (obtained_total,total_total,pass_status_total)
+			subjects['p1'][subject_name] = (obtained_p1,total_p1,pass_status_p1)
+			subjects['p2'][subject_name] = (obtained_p2,total_p2,pass_status_p2)
+			subjects['total'][subject_name] = (obtained_total,total_total,pass_status_total)
 
 			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
 			# pass_status =  marks_rec_td[8].string.strip() == 'PASS'
-			# marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
+			# subjects[subject_name] = (obtained_marks,total_marks,pass_status)
 
-		# def sum_obtained_marks(marks_dict):
-		# 	[x[1][0] for x in marks_dict.items()]
-		# 	return
+		def total_marks(subjects):
+			return tuple(map(lambda x,y:x(y),
+				[sum,sum,lambda x:reduce(lambda x,y: x and y,x)]
+				,zip(*[x[1] for x in subjects.items()])))
 
-		print [x for x in [marks_dict[x] for x in ['p1','p2','total']]]
-		obtained_p1 = [x[1][0] for x in marks_dict['p1'].items()]
-		obtained_p2 = [x[1][0] for x in marks_dict['p2'].items()]
+		totals = dict(zip(['p1','p2','total'],[total_marks(subjects[x]) for x in ['p1','p2','total']]))
 
-		(obtained_p1,obtained_p2) = []
-		total_p1 = [x[1][1] for x in marks_dict['p1'].items()]
-
-		return {}
+		return {x:(totals[x],subjects[x]) for x in ['p1','p2','total'] }
 
 
 class Result_part1(ResultMarks):
@@ -165,19 +159,19 @@ class Result_part1(ResultMarks):
 	@lazy_property
 	def marks_row(self):
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
-		marks_dict = {}
+		subjects = {}
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
 			total_marks = int(marks_rec_td[1].string.strip())
 			obtained_marks = int(marks_rec_td[2].string.strip())
 			pass_status = marks_rec_td[3].string.strip() == 'PASS'
-			marks_dict[subject_name] = (obtained_marks,total_marks,pass_status)
-		obtained_marks = sum([x[1][0] for x in marks_dict.items()])
-		total_marks    = sum([x[1][1] for x in marks_dict.items()])
-		pass_status    = not False in [x[1][2] for x in marks_dict.items()]
+			subjects[subject_name] = (obtained_marks,total_marks,pass_status)
+		obtained_marks = sum([x[1][0] for x in subjects.items()])
+		total_marks    = sum([x[1][1] for x in subjects.items()])
+		pass_status    = not False in [x[1][2] for x in subjects.items()]
 		return {
-			'subjects' : marks_dict ,
+			'subjects' : subjects ,
 			'marks'    : (obtained_marks,total_marks,pass_status)
 		}
 
