@@ -59,7 +59,7 @@ def shallow_query(cursor):
 	return cursor.execute(r'''SELECT rollnum FROM rolls WHERE status=0 OR status=1''').fetchall()
 
 if __name__ == "__main__":
-	conn = sqlite3.connect('rollNumFile.sqlite')
+	conn = sqlite3.connect('/home/azhar/db/rollNumFile.sqlite')
 	logger.info("Formed connection with the file:rollNumFile.sqlite")
 	c = conn.cursor()
 	avoid_rollNums = set([x[0] for x in shallow_query(c)])

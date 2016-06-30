@@ -156,8 +156,6 @@ class Result_part2(ResultMarks):
 
 			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
 			logger.debug("Finished the result for subject:{}".format(subject_name))
-			# pass_status =  marks_rec_td[8].string.strip() == 'PASS'
-			# subjects[subject_name] = (obtained_marks,total_marks,pass_status)
 
 		logger.debug("Finished obtaining result for subjects.")
 		def total_marks(subjects):
