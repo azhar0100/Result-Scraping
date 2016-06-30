@@ -9,6 +9,19 @@ url = 'http://result.biselahore.com/Home/Result'
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 # params = { 'degree': 'SSC' , 'rollNum': '' , 'session': '2' , 'year': '2015' }
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.addFilter(logging.Filter("get_result"))
+file_handler = logging.FileHandler("rollNumFile.log")
+file_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
+
 def lazy_property(fn):
 	attr_name = '__lazy__' + fn.__name__
 
