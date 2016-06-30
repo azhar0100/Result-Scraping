@@ -133,7 +133,7 @@ class Result_part2(ResultMarks):
 			subject_name = marks_rec_td[0].string.strip()
 			( total_p1,total_p2,total_total ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))
 
-			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string for x in [marks_rec_td[x] for x in range(4,6)]]])
+			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string for x in marks_rec_td[4:6]]])
 			obtained_total = obtained_p1 + obtained_p2
 
 			pass_status_p1 = (obtained_p1/total_p1) > (float(1)/float(3))
