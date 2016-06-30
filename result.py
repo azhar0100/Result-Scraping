@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
-stream_handler.addFilter(logging.Filter("get_result"))
-file_handler = logging.FileHandler("rollNumFile.log")
+file_handler = logging.FileHandler("result.log")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
@@ -131,6 +130,7 @@ class Result_part2(ResultMarks):
 			except ValueError:
 				return 0
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
+		logger.debug("Obtained the middle table.")
 		subjects = {
 			'p1' : {},
 			'p2' : {},
@@ -154,15 +154,18 @@ class Result_part2(ResultMarks):
 			subjects['total'][subject_name] = (obtained_total,total_total,pass_status_total)
 
 			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
+			logger.debug("Finished the result for subject:{}".format(subject_name))
 			# pass_status =  marks_rec_td[8].string.strip() == 'PASS'
 			# subjects[subject_name] = (obtained_marks,total_marks,pass_status)
 
+		logger.debug("Finished obtaining result for subjects.")
 		def total_marks(subjects):
 			return tuple(map(lambda x,y:x(y),
 				[sum,sum,lambda x:reduce(lambda x,y: x and y,x)]
 				,zip(*[x[1] for x in subjects.items()])))
 
 		totals = dict(zip(['p1','p2','total'],[total_marks(subjects[x]) for x in ['p1','p2','total']]))
+		logger.debug("Obtained the totals")
 
 		return {x:(totals[x],subjects[x]) for x in ['p1','p2','total'] }
 
