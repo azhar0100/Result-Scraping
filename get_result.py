@@ -7,6 +7,7 @@ from time import time
 from itertools import islice
 import re
 import sqlite3
+import json
 import logging
 start_time = time()
 logger = logging.getLogger('get_result')
@@ -23,7 +24,11 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
-config = {
+conf_path = 'get_result.conf'
+logger.info("Reading conf from{}".format(conf_path))
+with open('get_result.conf','w') as f:
+	file_config = json.dumps(f.read())
+default_config = {
 	REQUEST_CHUNK_SIZE : 1000,
 	DATABASE_CHUNK_SIZE : 100,
 	POOL_SIZE : 100,
@@ -32,6 +37,9 @@ config = {
 	YEAR : '2015',
 	PART : 2
 }
+config = {}
+config.update(default_config)
+config.update(file_config)
 
 def split_every(n, iterable):
     i = iter(iterable)
