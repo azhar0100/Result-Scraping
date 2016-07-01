@@ -24,6 +24,13 @@ logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
 
+REQUEST_CHUNK_SIZE = 1000
+DATABASE_CHUNK_SIZE = 100
+POOL_SIZE = 100
+DB_PATH = '/home/azhar/db/rollNumFile.sqlite'
+DEGREE = 'SSC'
+YEAR = '2015'
+PART = 2
 
 def split_every(n, iterable):
     i = iter(iterable)
@@ -59,8 +66,8 @@ def shallow_query(cursor):
 	return cursor.execute(r'''SELECT rollnum FROM rolls WHERE status=0 OR status=1''').fetchall()
 
 if __name__ == "__main__":
-	conn = sqlite3.connect('/home/azhar/db/rollNumFile.sqlite')
-	logger.info("Formed connection with the file:rollNumFile.sqlite")
+	conn = sqlite3.connect(DB_PATH)
+	logger.info("Formed connection with the file:{}".format(DB_PATH))
 	c = conn.cursor()
 	avoid_rollNums = set([x[0] for x in shallow_query(c)])
 	logger.info("Formed the avoid_rollNums set")
@@ -68,9 +75,8 @@ if __name__ == "__main__":
 	logger.info("Formed the ROLL_NUM_LIST")
 	ROLL_NUM_TUPLE_LIST= [(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST]
 	start_time = time()
-	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
-	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,1000)
+	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,REQUEST_CHUNK_SIZE)
 	count = 0
 	for result in results:
 		count += 1
@@ -78,7 +84,7 @@ if __name__ == "__main__":
 		c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
 		if result[1] == 2:
 			ROLL_NUM_TUPLE_LIST.append((str(result[0]),'SSC','2','2015'))
-		if count % 100 == 0:
+		if count % DATABASE_CHUNK_SIZE == 0:
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
 		logger.info(result[0:2])
