@@ -70,7 +70,7 @@ if __name__ == "__main__":
 	start_time = time()
 	POOL_SIZE = 100
 	pool = Pool(POOL_SIZE)
-	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,100000)
+	results = lazy_imap(get_result,[(str(x),'SSC','2','2015') for x in ROLL_NUM_LIST],pool,1000)
 	count = 0
 	for result in results:
 		count += 1

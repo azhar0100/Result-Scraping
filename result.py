@@ -35,7 +35,7 @@ def lazy_property(fn):
 
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
-	return requests.post(url , data=params , headers=headers)
+	return requests.post(url , data=params , headers=headers, timeout=30)
 
 def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
