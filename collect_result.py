@@ -5,6 +5,7 @@ from multiprocessing.dummy import Pool
 from result import Result,StudentNotFound
 from get_result import split_every
 import sqlite3
+import json
 import logging
 logger = logging.getLogger(__name__)
 requests_logger = logging.getLogger('requests')
@@ -41,8 +42,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS result(
 		name TEXT,
 		father_name TEXT,
 		centre TEXT,
-		date_of_birth DATE)''')
-db_iter = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE status=1''')
+		date_of_birth DATE,
+		marks TEXT)''')
 current_rollNum = 0
 
 while True:
@@ -55,6 +56,7 @@ while True:
 		rslt = Result(rollnum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
 		putlist = [getattr(rslt,x) for x in ['rollNum','regNum','student_name','father_name','centre','date_of_birth']]
 		putlist.insert(1,status)
-		logger.info(putlist)
-		insert_c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?)''',tuple(putlist))
+		putlist.append(json.dumps(rslt.marks_row))
+		logger.info(putlist[0:-1])
+		insert_c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(putlist))
 	insert_conn.commit()
