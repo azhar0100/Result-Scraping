@@ -71,7 +71,7 @@ class BaseResult(object):
 	@lazy_property
 	def reg_row(self):
 		reg_row = self.middle_table('tr',recursive=False)[1].td.table.tr
-		regNum  = int(get_tag_contents(reg_row)[2].p.u.string.strip())
+		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
 		return {"regNum":regNum}
 
 	@lazy_property

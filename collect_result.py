@@ -10,8 +10,7 @@ requests_logger = logging.getLogger('requests')
 logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
-stream_handler.addFilter(logging.Filter("get_result"))
-file_handler = logging.FileHandler("rollNumFile.log")
+file_handler = logging.FileHandler("collect.log")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
@@ -21,7 +20,10 @@ logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
 
 default_conf = {
-	'DB_PATH' : "/home/azhar/db/rollNumFile.sqlite"
+	'DB_PATH' : "/home/azhar/db/rollNumFileCollected.sqlite",
+	"DEGREE" : "SSC",
+	"YEAR" : 2015,
+	"PART" : 2
 }
 
 config = default_conf
@@ -31,10 +33,18 @@ logger.info("Formed connection with the file : {}".format(config['DB_PATH']))
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS result(
 		rollnum INTEGER PRIMARY KEY,
-		status INTEGER,
+		status INTEGER REFERENCES rolls(status),
 		registration INTEGER,
 		name TEXT,
 		father_name TEXT,
 		centre TEXT,
 		date_of_birth DATE)''')
-
+rec_list = []
+for rollnum,status,html in c.execute('''SELECT rollnum,status,html FROM rollnums WHERE status=1'''):
+	rslt = Result(rollnum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
+	putlist = [getattr(rslt,x) for x in ['rollNum','regNum','student_name','father_name','centre','date_of_birth']]
+	putlist.insert(1,status)
+	logger.info(putlist)
+	rec_list.append(tuple(putlist))
+for rec in rec_list:
+	c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?)''',rec)
