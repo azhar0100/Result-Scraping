@@ -3,6 +3,7 @@
 from __future__ import print_function
 from multiprocessing.dummy import Pool
 from result import Result,StudentNotFound
+from get_result import split_every
 import sqlite3
 import logging
 logger = logging.getLogger(__name__)
@@ -41,15 +42,19 @@ c.execute('''CREATE TABLE IF NOT EXISTS result(
 		father_name TEXT,
 		centre TEXT,
 		date_of_birth DATE)''')
-rec_list = []
-count = 0
-for rollnum,status,html in c.execute('''SELECT rollnum,status,html FROM rollnums WHERE status=1'''):
-	count += 1
-	rslt = Result(rollnum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
-	putlist = [getattr(rslt,x) for x in ['rollNum','regNum','student_name','father_name','centre','date_of_birth']]
-	putlist.insert(1,status)
-	logger.info(putlist)
-	rec_list.append(tuple(putlist))
-	insert_c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?)''',tuple(putlist))
-	if count % 100 == 0:
-		insert_conn.commit()
+db_iter = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE status=1''')
+current_rollNum = 0
+
+while True:
+	c.execute('''SELECT rollnum,status,html FROM rollnums WHERE status=1 and rollnum > {} limit 100'''.format(current_rollNum))
+	chunk = c.fetchall()
+	if chunk is None:
+		break
+	for rollnum,status,html in chunk:
+		current_rollNum = rollnum
+		rslt = Result(rollnum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
+		putlist = [getattr(rslt,x) for x in ['rollNum','regNum','student_name','father_name','centre','date_of_birth']]
+		putlist.insert(1,status)
+		logger.info(putlist)
+		insert_c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?)''',tuple(putlist))
+	insert_conn.commit()
