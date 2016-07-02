@@ -71,7 +71,7 @@ class BaseResult(object):
 	@lazy_property
 	def reg_row(self):
 		reg_row = self.middle_table('tr',recursive=False)[1].td.table.tr
-		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
+		regNum  = int(get_tag_contents(reg_row)[2].p.u.string.strip())
 		return {"regNum":regNum}
 
 	@lazy_property
@@ -193,7 +193,7 @@ class Result_part1(ResultMarks):
 
 def Result(rollNum,degree,session,year,html=''):
 	if session == '1':
-		return Result_part1(rollNum,degree,session,year,html='')
+		return Result_part1(rollNum,degree,session,year,html=html)
 	if session == '2':
-		return Result_part2(rollNum,degree,session,year,html='')
+		return Result_part2(rollNum,degree,session,year,html=html)
 	
