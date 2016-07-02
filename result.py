@@ -137,6 +137,8 @@ class Result_part2(ResultMarks):
 			'p2' : {},
 			'total' : {}
 		}
+		if not marks_row.find_all('tr',recursive=False)[3:-1]:
+			return {}
 
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
