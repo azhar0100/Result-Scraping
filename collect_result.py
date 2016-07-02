@@ -15,7 +15,6 @@ file_handler = logging.FileHandler("collect.log")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
-stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
@@ -50,29 +49,20 @@ c.execute('''CREATE TABLE IF NOT EXISTS result(
 		centre TEXT,
 		date_of_birth DATE,
 		marks TEXT)''')
-current_rollNum = 0
-while True:
-	avoid_rollNums = set([x[0] for x in c.execute('''SELECT rollnum FROM result''')])
-	logger.info("Formed the avoid_rollnums set")
-	c.execute('''SELECT rollnum,status,html FROM rollnums 
-		WHERE status=1
-		and rollnum > {} LIMIT 100
-		'''.format(current_rollNum))
-	temp_chunk = c.fetchall()
-	logger.debug("Formed temp_chunk")
-	chunk = [x for x in c.fetchall() if x[0] not in avoid_rollNums ]
-	logger.debug("Formed chunk")
+avoid_rollNums = set([x[0] for x in c.execute('''SELECT rollnum FROM result''')])
+logger.info("Formed avoid_rollnums")
+key_rollnums = [x for (x,) in c.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 
-	if chunk is None:
-		logger.debug('Chunk is not None')
-		break
-	for rollnum,status,html in chunk:
-		logger.debug("Got into main loop")
-		current_rollNum = rollnum
-		rslt = Result(rollnum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
-		putlist = [getattr(rslt,x) for x in ['rollNum','regNum','student_name','father_name','centre','date_of_birth']]
-		putlist.insert(1,status)
-		putlist.append(json.dumps(rslt.marks_row))
-		logger.info(putlist[0:-1])
-		insert_c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(putlist))
-	insert_conn.commit()
+count = 0
+for key_rollnum in key_rollnums:
+	count += 1
+	(rollNum,status,html) = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(key_rollnum)).fetchall()[0]
+	rslt = Result(rollNum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
+	attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
+	result_list = [getattr(rslt,x) for x in attr_list]
+	result_list.insert(1,status)
+	result_list.append(json.dumps(rslt.marks_row))
+	logger.info(result_list[0:-1])
+	c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(result_list))
+	if count % 100:
+		conn.commit()
