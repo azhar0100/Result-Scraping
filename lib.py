@@ -1,3 +1,5 @@
+from itertools import islice
+
 def split_every(n, iterable):
     i = iter(iterable)
     piece = list(islice(i, n))

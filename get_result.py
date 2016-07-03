@@ -32,18 +32,8 @@ try:
 		file_config = json.loads(f.read())
 except IOError:
 	file_config = {}
-print(file_config)
-default_config = {
-	'REQUEST_CHUNK_SIZE' : 1000,
-	'DATABASE_CHUNK_SIZE' : 100,
-	'POOL_SIZE' : 100,
-	'DB_PATH' : '/home/azhar/db/rollNumFile.sqlite',
-	'DEGREE' : 'SSC',
-	'YEAR' : 2015,
-	'PART' : 2
-}
+logger.info("Read config as {}".format(file_config))
 config = {}
-config.update(default_config)
 config.update(file_config)
 
 def call_result(arg_tuple):
