@@ -19,13 +19,6 @@ logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
 
-def split_every(n, iterable):
-    i = iter(iterable)
-    piece = list(islice(i, n))
-    while piece:
-        yield piece
-        piece = list(islice(i, n))
-
 default_conf = {
 	'DB_PATH' : "/home/azhar/db/rollNumFileCollected.sqlite",
 	"DEGREE" : "SSC",

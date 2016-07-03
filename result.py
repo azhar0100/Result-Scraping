@@ -4,6 +4,7 @@ import re
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from lib import lazy_property
 import logging
 
 url = 'http://result.biselahore.com/Home/Result'
@@ -21,17 +22,6 @@ file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
-
-def lazy_property(fn):
-	attr_name = '__lazy__' + fn.__name__
-
-	@property
-	def _lazy_property(self):
-		if not hasattr(self,attr_name):
-			setattr(self,attr_name,fn(self))
-		return getattr(self,attr_name)
-
-	return _lazy_property
 
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
