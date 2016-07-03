@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-from multiprocessing.dummy import Pool
+from multiprocessing import Pool
 from result import Result,StudentNotFound
+from lib import split_every
 import sqlite3
 import json
 import logging
@@ -53,12 +54,19 @@ def get_result_list(rollNum,status,html):
 	result_list.insert(1,status)
 	result_list.append(json.dumps(rslt.marks_row))
 	logger.info(result_list[0:-1])
-	return result_list
+	return tuple(result_list)
 
-count = 0
-for key_rollnum in key_rollnums:
-	count += 1
-	(rollNum,status,html) = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(key_rollnum)).fetchall()[0]
-	c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(get_result_list(rollnum,status,html)))
-	if count % 100:
-		conn.commit()
+def call_result_list(arg_tuple):
+	return get_result_list(*arg_tuple)
+
+for chunk in split_every(100,key_rollnums):
+	chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
+	pool = Pool(4)
+	result_chunk = pool.imap_unordered(call_result_list,chunk_data)
+	for reslt in result_chunk:
+		c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
+	logger.info("Commit Now!")
+	conn.commit()
+	logger.info("Joining the process Pool")
+	pool.close()
+	pool.join()
