@@ -61,8 +61,8 @@ def call_result_list(arg_tuple):
 
 for chunk in split_every(100,key_rollnums):
 	chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
-	pool = Pool(4)
-	result_chunk = pool.imap_unordered(call_result_list,chunk_data)
+	pool = Pool()
+	result_chunk = pool.imap_unordered(call_result_list,chunk_data,25)
 	for reslt in result_chunk:
 		c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
 	logger.info("Commit Now!")
