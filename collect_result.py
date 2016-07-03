@@ -4,6 +4,7 @@ from __future__ import print_function
 from multiprocessing import Pool
 from result import Result,StudentNotFound
 from lib import split_every
+from itertools import imap
 import sqlite3
 import json
 import logging
@@ -20,14 +21,16 @@ logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 requests_logger.addHandler(file_handler)
 
-default_conf = {
-	'DB_PATH' : "/home/azhar/db/rollNumFileCollected.sqlite",
-	"DEGREE" : "SSC",
-	"YEAR" : 2015,
-	"PART" : 2
-}
-
-config = default_conf
+conf_path = 'collect.json'
+logger.info("Reading conf from: {}".format(conf_path))
+try:
+	with open(conf_path,'r') as f:
+		file_config = json.loads(f.read())
+except IOError:
+	file_config = {}
+logger.info("Read config as {}".format(file_config))
+config = {}
+config.update(file_config)
 
 conn = sqlite3.connect(config['DB_PATH'])
 insert_conn = sqlite3.connect(config['DB_PATH'])
@@ -61,8 +64,7 @@ def call_result_list(arg_tuple):
 
 for chunk in split_every(100,key_rollnums):
 	chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
-	pool = Pool()
-	result_chunk = pool.imap_unordered(call_result_list,chunk_data,25)
+	result_chunk = imap(call_result_list,chunk_data)
 	for reslt in result_chunk:
 		c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
 	logger.info("Commit Now!")
