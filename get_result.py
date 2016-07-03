@@ -62,9 +62,9 @@ if __name__ == "__main__":
 	c = conn.cursor()
 	avoid_rollNums = set([x[0] for x in shallow_query(c)])
 	logger.info("Formed the avoid_rollNums set")
-	ROLL_NUM_LIST = [x for x in range(100000,999999) if  x not in avoid_rollNums]
+	ROLL_NUM_LIST = [x for x in range(000000,999999) if  x not in avoid_rollNums]
 	logger.info("Formed the ROLL_NUM_LIST")
-	ROLL_NUM_TUPLE_LIST= [(str(x),config['DEGREE'],str(config['PART']),str(config['YEAR'])) for x in ROLL_NUM_LIST]
+	ROLL_NUM_TUPLE_LIST= [(str(x).zfill(6),config['DEGREE'],str(config['PART']),str(config['YEAR'])) for x in ROLL_NUM_LIST]
 	start_time = time()
 	pool = Pool(config['POOL_SIZE'])
 	results = lazy_imap(get_result,ROLL_NUM_TUPLE_LIST,pool,config['REQUEST_CHUNK_SIZE'])
@@ -79,6 +79,8 @@ if __name__ == "__main__":
 			logger.info("Commit Now at {}".format(count))
 			conn.commit()
 		logger.info(result[0:2])
+	logger.info("End Commit at {}".format(count))
+	conn.commit()
 	logger.info( "========seconds============={}".format(time()-start_time))
 	pool.close()
 	pool.join()
