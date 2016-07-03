@@ -46,16 +46,19 @@ avoid_rollNums = set([x[0] for x in c.execute('''SELECT rollnum FROM result''')]
 logger.info("Formed avoid_rollnums")
 key_rollnums = [x for (x,) in c.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 
-count = 0
-for key_rollnum in key_rollnums:
-	count += 1
-	(rollNum,status,html) = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(key_rollnum)).fetchall()[0]
+def get_result_list(rollNum,status,html):
 	rslt = Result(rollNum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
 	attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
 	result_list = [getattr(rslt,x) for x in attr_list]
 	result_list.insert(1,status)
 	result_list.append(json.dumps(rslt.marks_row))
 	logger.info(result_list[0:-1])
-	c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(result_list))
+	return result_list
+
+count = 0
+for key_rollnum in key_rollnums:
+	count += 1
+	(rollNum,status,html) = c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(key_rollnum)).fetchall()[0]
+	c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',tuple(get_result_list(rollnum,status,html)))
 	if count % 100:
 		conn.commit()
