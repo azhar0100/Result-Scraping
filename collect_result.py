@@ -51,6 +51,7 @@ logger.info("Formed avoid_rollnums")
 key_rollnums = [x for (x,) in c.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 
 def get_result_list(rollNum,status,html):
+	logger.debug("Called on rollNum:{}".format(rollNum))
 	rslt = Result(rollNum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
 	attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
 	result_list = [getattr(rslt,x) for x in attr_list]
