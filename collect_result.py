@@ -61,15 +61,15 @@ def get_result_list(rollNum,status,html):
 
 def call_result_list(arg_tuple):
 	return get_result_list(*arg_tuple)
-
-for chunk in split_every(100,key_rollnums):
-	chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
-	pool = Pool()
-	result_chunk = pool.imap(call_result_list,chunk_data)
-	for reslt in result_chunk:
-		c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
-	logger.info("Commit Now!")
-	conn.commit()
-	logger.info("Joining the process Pool")
-	pool.close()
-	pool.join()
+if __name__ == '__main__':
+	for chunk in split_every(100,key_rollnums):
+		chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
+		pool = Pool()
+		result_chunk = pool.imap(call_result_list,chunk_data)
+		for reslt in result_chunk:
+			c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
+		logger.info("Commit Now!")
+		conn.commit()
+		logger.info("Joining the process Pool")
+		pool.close()
+		pool.join()
