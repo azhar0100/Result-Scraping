@@ -133,7 +133,14 @@ class Result_part2(ResultMarks):
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
 			logger.debug("Started for subject: {}".format(subject_name))
-			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string.strip() for x in marks_rec_td[4:6]]])
+
+			for marks,level in zip([x.string.strip() for x in marks_rec_td[4:6]],['p1','p2','total']):
+				# marks_rec_td[4:6] contains the obtained marks for p1,p2 and total
+				if marks == '---':
+					continue
+				else:
+					subjects[level][subject_name] = int(marks)
+
 			obtained_total = obtained_p1 + obtained_p2
 			
 			try:
