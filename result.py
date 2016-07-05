@@ -12,9 +12,9 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 # params = { 'degree': 'SSC' , 'rollNum': '' , 'session': '2' , 'year': '2015' }
 
 logger = logging.getLogger(__name__)
-logger.setLevel(9)
+logger.setLevel(8)
 file_handler = logging.FileHandler("result.log")
-file_handler.setLevel(9)
+file_handler.setLevel(8)
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -95,11 +95,11 @@ class BaseResult(object):
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	# def __getattr__(self,name):
-	# 	try:
-	# 		return self.dict[name]
-	# 	except KeyError:
-	# 		raise AttributeError
+	def __getattr__(self,name):
+		try:
+			return self.dict[name]
+		except KeyError:
+			raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -143,44 +143,67 @@ class Result_part2(ResultMarks):
 			for marks,level in obtained_iter:
 				# marks_rec_td[4:6] contains the obtained marks for p1,p2 and total
 				if marks == '---':
-					logger.debug("Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
+					logger.log(9,"Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
 					continue
 				else:
-					logger.debug("Putting {} for subject {} in {}".format(marks,subject_name,level))
+					logger.log(9,"Putting {} obtained for subject {} in {}".format(marks,subject_name,level))
 					try:
-						subjects[level][subject_name] = int(marks)
-						logger.debug("Putting {} for subject {} in {} as int".format(marks,subject_name,level))
+						subjects[level][subject_name]={}
+						subjects[level][subject_name]['obtained'] = int(marks)
+						logger.log(8,"Putting {} obtained for subject {} in {} as int".format(marks,subject_name,level))
 					except ValueError:
-						subjects[level][subject_name] = marks
-						logger.debug("Putting {} for subject {} in {} as grade".format(marks,subject_name,level))
+						subjects[level][subject_name]={}
+						subjects[level][subject_name]['obtained'] = marks
+						logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
 			
-			try:
-				( total_p1,total_p2 ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))[0:2]
+			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
+
+			if len(total_tuple) == 2:
+				logger.log(9,"Subject {} has only a 2-tuple".format(subject_name))
+				session_of_subject = [x for x in ['p1','p2','pr'] if subject_name in subjects[x].keys()][0]
+				logger.log(8,"The session of 2-tuple subject:{}={}".format(subject_name,session_of_subject))
+				subjects[session_of_subject][subject_name]['total'] = total_tuple[0]
+				subjects['total'][subject_name]['total'] = total_tuple[0]
+			else:
+				logger.log(9,'total_tuple is {}'.format(total_tuple))
+				for x,y in zip(['p1','p2','total'],total_tuple):
+					subjects[x][subject_name]['total'] = y
+					logger.log(8,"Putting {} total for subject {} in {}".format(y,subject_name,x))
 				# total_total will be calculated later.
-			except ValueError:
-				temp_total = marks_rec_td[1].string
 
-			pass_status_p1 = (obtained_p1/total_p1) > (float(1)/float(3))
-			pass_status_p2 = (obtained_p2/total_p2) > (float(1)/float(3))
-			pass_status_total = pass_status_p1 and pass_status_p2
+			try:
+				subjects['pr'][subject_name]['total'] = int(total_tuple[3])
+				logging.debug("Practical is {}".format(subjects['pr'][subject_name]))
+			except Exception:
+				pass
 
-			subjects['p1'][subject_name] = (obtained_p1,total_p1,pass_status_p1)
-			subjects['p2'][subject_name] = (obtained_p2,total_p2,pass_status_p2)
-			subjects['total'][subject_name] = (obtained_total,total_total,pass_status_total)
-
-			pass_status_observed =  marks_rec_td[8].string.strip() == 'PASS'
+			for i in ['p1','p2','total']:
+				try:
+					x = subjects[i][subject_name]
+				except KeyError:
+					continue
+				x['pass'] = not (float(x['obtained']) / float(x['total'])) < (1.0/3.0)
+				logger.log(8,"Putting pass status {} for subject {} in {} ".format(x['pass'],subject_name,i))
+			
 			logger.debug("Finished the result for subject:{}".format(subject_name))
 
 		logger.debug("Finished obtaining result for subjects.")
 		def total_marks(subjects):
 			return tuple(map(lambda x,y:x(y),
-				[sum,sum,lambda x:reduce(lambda x,y: x and y,x)]
+				[sum,sum,lambda x:reduce(lambda y,z: y and z,x)]
 				,zip(*[x[1] for x in subjects.items()])))
 
-		totals = dict(zip(['p1','p2','total'],[total_marks(subjects[x]) for x in ['p1','p2','total']]))
+		total_dict = {}
+		for session in ['p1','p2','total']:
+			(obtained,total,pass_status)= zip(*[x.items() for x in [x[1] for x in subjects[session].items()]])
+			total_dict[session] = {}
+			total_dict[session]['obtained'] = sum([x[1] for x in obtained])
+			total_dict[session]['total'] = sum([x[1] for x in total])
+			total_dict[session]['pass_status'] = reduce(lambda x,y:x and y,[x[1] for x in pass_status])
+
 		logger.debug("Obtained the totals")
 
-		return {x:(totals[x],subjects[x]) for x in ['p1','p2','total'] }
+		return {x:(total_dict[x],subjects[x]) for x in ['p1','p2','total'] }
 
 
 class Result_part1(ResultMarks):
