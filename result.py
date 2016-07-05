@@ -13,13 +13,12 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler("result.log")
 file_handler.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
-stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
@@ -93,11 +92,11 @@ class BaseResult(object):
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	def __getattr__(self,name):
-		try:
-			return self.dict[name]
-		except KeyError:
-			raise AttributeError
+	# def __getattr__(self,name):
+	# 	try:
+	# 		return self.dict[name]
+	# 	except KeyError:
+	# 		raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -133,10 +132,15 @@ class Result_part2(ResultMarks):
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
-			( total_p1,total_p2,total_total ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))
-
-			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string for x in marks_rec_td[4:6]]])
+			logger.debug("Started for subject: {}".format(subject_name))
+			( obtained_p1,obtained_p2) = tuple([convert_to_int(x) for x in [x.string.strip() for x in marks_rec_td[4:6]]])
 			obtained_total = obtained_p1 + obtained_p2
+			
+			try:
+				( total_p1,total_p2 ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))[0:2]
+				# total_total will be calculated later.
+			except ValueError:
+				temp_total = marks_rec_td[1].string
 
 			pass_status_p1 = (obtained_p1/total_p1) > (float(1)/float(3))
 			pass_status_p2 = (obtained_p2/total_p2) > (float(1)/float(3))
