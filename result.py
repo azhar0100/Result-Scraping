@@ -12,15 +12,18 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 # params = { 'degree': 'SSC' , 'rollNum': '' , 'session': '2' , 'year': '2015' }
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(9)
 file_handler = logging.FileHandler("result.log")
-file_handler.setLevel(logging.DEBUG)
+file_handler.setLevel(9)
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
+
+def lowerdebug(msg):
+	logger.log(9,msg)
 
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
@@ -124,6 +127,7 @@ class Result_part2(ResultMarks):
 		subjects = {
 			'p1' : {},
 			'p2' : {},
+			'pr' : {},
 			'total' : {}
 		}
 		if not marks_row.find_all('tr',recursive=False)[3:-1]:
@@ -134,14 +138,21 @@ class Result_part2(ResultMarks):
 			subject_name = marks_rec_td[0].string.strip()
 			logger.debug("Started for subject: {}".format(subject_name))
 
-			for marks,level in zip([x.string.strip() for x in marks_rec_td[4:6]],['p1','p2','total']):
+			obtained_iter = zip([x.string.strip() for x in marks_rec_td[4:8]],['p1','p2','pr','total'])
+			lowerdebug("Iterating over {}".format(obtained_iter))
+			for marks,level in obtained_iter:
 				# marks_rec_td[4:6] contains the obtained marks for p1,p2 and total
 				if marks == '---':
+					logger.debug("Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
 					continue
 				else:
-					subjects[level][subject_name] = int(marks)
-
-			obtained_total = obtained_p1 + obtained_p2
+					logger.debug("Putting {} for subject {} in {}".format(marks,subject_name,level))
+					try:
+						subjects[level][subject_name] = int(marks)
+						logger.debug("Putting {} for subject {} in {} as int".format(marks,subject_name,level))
+					except ValueError:
+						subjects[level][subject_name] = marks
+						logger.debug("Putting {} for subject {} in {} as grade".format(marks,subject_name,level))
 			
 			try:
 				( total_p1,total_p2 ) = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string)))[0:2]
