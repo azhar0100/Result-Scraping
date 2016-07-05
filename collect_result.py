@@ -8,18 +8,17 @@ from itertools import imap
 import sqlite3
 import json
 import logging
+
 logger = logging.getLogger(__name__)
-requests_logger = logging.getLogger('requests')
 logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler("collect.log")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
-requests_logger.addHandler(file_handler)
 
 conf_path = 'collect.json'
 logger.info("Reading conf from: {}".format(conf_path))
