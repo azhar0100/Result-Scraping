@@ -95,11 +95,11 @@ class BaseResult(object):
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	def __getattr__(self,name):
-		try:
-			return self.dict[name]
-		except KeyError:
-			raise AttributeError
+	# def __getattr__(self,name):
+	# 	try:
+	# 		return self.dict[name]
+	# 	except KeyError:
+	# 		raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -133,6 +133,7 @@ class Result_part2(ResultMarks):
 			subject_name = marks_rec_td[0].string.strip()
 			logger.debug("Started for subject: {}".format(subject_name))
 			subjects[subject_name] = {}
+			subject = subjects[subject_name]
 
 			obtained_iter = zip([x.string.strip() for x in marks_rec_td[4:8]],['p1','p2','pr','total'])
 			lowerdebug("Iterating over {}".format(obtained_iter))
@@ -160,11 +161,11 @@ class Result_part2(ResultMarks):
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
 
 			if len(total_tuple) == 2:
-				logger.log(9,"Subject {} has only a 2-tuple".format(subject_name))
-				session_of_subject = [x for x in ['p1','p2','pr'] if subject_name in subjects[x].keys()][0]
-				logger.log(8,"The session of 2-tuple subject:{}={}".format(subject_name,session_of_subject))
-				subjects[session_of_subject][subject_name]['total'] = total_tuple[0]
-				subjects['total'][subject_name]['total'] = total_tuple[0]
+				logger.log(9,"Subject {} has only a 2-tuple : {}".format(subject_name,total_tuple))
+				for key in subject.keys():
+					session = subject[key]
+					session['total'] = total_tuple[0]
+					logger.log(8,"Putting total marks {} for subject {} in session {}".format(total_tuple[0],subject_name,key))
 			else:
 				logger.log(9,'total_tuple is {}'.format(total_tuple))
 				for x,y in zip(['p1','p2','total'],total_tuple):
