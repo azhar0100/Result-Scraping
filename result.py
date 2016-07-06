@@ -203,13 +203,27 @@ class Result_part2(ResultMarks):
 			check_list = ['obtained','total','pass']
 			return set(check_list) <= set(x.keys())
 
-		for subject_name,subject in subjects.items():
-			logger.debug([(k,v) for k,v in subject.items() if filter_out_grade(v)])
-			logger.debug(zip(*{k:v for k,v in subject.items() if filter_out_grade(v)}.items()))
-			for k,v in {k:v for k,v in subject.items() if filter_out_grade(v)}.items():
-				logger.debug('{},{}'.format(k,v))				
+		def change_dict(subject_dict):
+			new_dict = {}
+			for sname,subject in subject_dict.items():
+				for session,marks in subject.items():
+					try:
+						new_dict[session][sname] = marks
+					except KeyError:
+						new_dict[session] = {}
+			logger.debug(new_dict)
+			return new_dict
 
-		logger.debug("Obtained the totals")
+		logger.debug(change_dict(subjects))
+
+		for session in ['p1','p2','total']:
+			(obtained,total,pass_status)= zip(*[x.items() for x in [x[1] for x in change_dict(subjects)[session].items()]])
+			total_dict[session] = {}
+			total_dict[session]['obtained'] = sum([x[1] for x in obtained])
+			total_dict[session]['total'] = sum([x[1] for x in total])
+			total_dict[session]['pass_status'] = reduce(lambda x,y:x and y,[x[1] for x in pass_status])
+
+		logger.debug("Obtained the totals {}".format(total_dict))
 
 		return {x:(total_dict[x],subjects[x]) for x in ['p1','p2','total'] }
 
