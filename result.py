@@ -200,22 +200,24 @@ class Result_part2(ResultMarks):
 
 		total_dict = {}
 		for subject_name,subject_dict in subjects.items():
-			for session,marks in subject_dict:
+			for session,marks in subject_dict.items():
+
+				logger.log(8,"Starting on session {} in subject {}".format(session,subject_name))
 				if session not in total_dict:
 					total_dict[session] = {}
+				try:
+					total_dict[session]['obtained'].append(marks['obtained'])
+					total_dict[session]['total'].append(marks['total'])
+					total_dict[session]['pass'].append(marks['pass'])
+				except KeyError:
+					total_dict[session]['obtained'] = []
+					total_dict[session]['total'] = []
+					total_dict[session]['pass'] = []
 
-				if not isinstance(total_dict[session]['obtained'],list):
-					total_dict[session]['obtained']
-				total_dict[session]['obtained'].append(subject_dict['obtained'])
-
-				if not isinstance(total_dict[session]['total'],list):
-					total_dict[session]['total']
-				total_dict[session]['total'].append(subject_dict['total'])
-				
-				if not isinstance(total_dict[session]['pass'],list):
-					total_dict[session]['pass']
-				total_dict[session]['pass'].append(subject_dict['pass'])
-
+		total_dict['obtained'] = sum(total_dict['obtained'])
+		total_dict['total'] = sum(total_dict['total'])
+		total_dict['pass'] = reduce(lambda y,z: y and z,total_dict['pass'])
+		logger.debug({k:f(total_dict[k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])})
 		logger.debug("Obtained the totals {}".format(total_dict))
 
 		return {x:(total_dict[x],subjects[x]) for x in ['p1','p2','total'] }
