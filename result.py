@@ -156,7 +156,7 @@ class Result_part2(ResultMarks):
 							logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
 						elif level == 'total':
 							subjects[subject_name][level]={}
-							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items() if x[1]])
+							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items() if 'obtained' in x[1].keys()])
 							logger.warning("Total value not found for subject:{}.Putting calculated value {}".format(subject_name,subjects[subject_name][level]['obtained']))
 			
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
@@ -184,7 +184,7 @@ class Result_part2(ResultMarks):
 
 			for i in ['p1','p2','total']:
 				try:
-					x = subjects[i][subject_name]
+					x = subject[i]
 				except KeyError:
 					continue
 				x['pass'] = not (float(x['obtained']) / float(x['total'])) < (1.0/3.0)
@@ -199,12 +199,15 @@ class Result_part2(ResultMarks):
 				,zip(*[x[1] for x in subjects.items()])))
 
 		total_dict = {}
-		for session in ['p1','p2','total']:
-			(obtained,total,pass_status)= zip(*[x.items() for x in [x[1] for x in subjects[session].items()]])
-			total_dict[session] = {}
-			total_dict[session]['obtained'] = sum([x[1] for x in obtained])
-			total_dict[session]['total'] = sum([x[1] for x in total])
-			total_dict[session]['pass_status'] = reduce(lambda x,y:x and y,[x[1] for x in pass_status])
+		def filter_out_grade(x):
+			check_list = ['obtained','total','pass']
+			return set(check_list) <= set(x.keys())
+
+		for subject_name,subject in subjects.items():
+			logger.debug([(k,v) for k,v in subject.items() if filter_out_grade(v)])
+			logger.debug(zip(*{k:v for k,v in subject.items() if filter_out_grade(v)}.items()))
+			for k,v in {k:v for k,v in subject.items() if filter_out_grade(v)}.items():
+				logger.debug('{},{}'.format(k,v))				
 
 		logger.debug("Obtained the totals")
 
