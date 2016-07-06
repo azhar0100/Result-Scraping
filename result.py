@@ -95,11 +95,11 @@ class BaseResult(object):
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	# def __getattr__(self,name):
-	# 	try:
-	# 		return self.dict[name]
-	# 	except KeyError:
-	# 		raise AttributeError
+	def __getattr__(self,name):
+		try:
+			return self.dict[name]
+		except KeyError:
+			raise AttributeError
 
 class ResultMarks(BaseResult):
 
@@ -214,10 +214,13 @@ class Result_part2(ResultMarks):
 					total_dict[session]['total'] = []
 					total_dict[session]['pass'] = []
 
-		logger.debug({k:f(total_dict[k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])})
+		total_dict = {i:{k:f(total_dict[i][k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])} for i in ['p1','p2','total']}
 		logger.debug("Obtained the totals {}".format(total_dict))
 
-		return {x:(total_dict[x],subjects[x]) for x in ['p1','p2','total'] }
+		return {
+			'total' : total_dict,
+			'subjects' : subjects
+		}
 
 
 class Result_part1(ResultMarks):
