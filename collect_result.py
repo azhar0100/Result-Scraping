@@ -72,7 +72,7 @@ if __name__ == '__main__':
 		for reslt in result_chunk:
 			if reslt:
 				c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
-			elif rslt == None:
+			elif reslt == None:
 				logger.critical("None Returned!")
 		logger.info("Commit Now!")
 		conn.commit()

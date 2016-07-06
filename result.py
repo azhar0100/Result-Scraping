@@ -143,7 +143,7 @@ class Result_part2(ResultMarks):
 				# 	logger.log(9,"Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
 				# 	continue
 				if True:
-					logger.log(9,"Putting {} obtained for subject {} in {}".format(marks,subject_name,level))
+					logger.log(9,"Found {} obtained for subject {} in {}".format(marks,subject_name,level))
 					try:
 						int(marks)
 						subjects[subject_name][level]={}
@@ -170,9 +170,10 @@ class Result_part2(ResultMarks):
 			else:
 				logger.log(9,'total_tuple is {}'.format(total_tuple))
 				for x,y in zip(['p1','p2','total'],total_tuple):
-					# Temporary log
-					logger.debug(subject[x])
-					subject[x]['total'] = y
+					try:
+						subject[x]['total'] = y
+					except KeyError:
+						continue
 					logger.log(8,"Putting {} total for subject {} in {}".format(y,subject_name,x))
 				# total_total will be calculated later.
 
@@ -200,9 +201,9 @@ class Result_part2(ResultMarks):
 
 		total_dict = {}
 		for subject_name,subject_dict in subjects.items():
+			logger.log(7,"Started collection In Subject {}:{}".format(subject_name,subject_dict))
 			for session,marks in subject_dict.items():
-
-				logger.log(8,"Starting on session {} in subject {}".format(session,subject_name))
+				logger.log(8,"Starting total collection on session {} in subject {}".format(session,subject_name))
 				if session not in total_dict:
 					total_dict[session] = {}
 				try:
@@ -214,7 +215,8 @@ class Result_part2(ResultMarks):
 					total_dict[session]['total'] = []
 					total_dict[session]['pass'] = []
 
-		total_dict = {i:{k:f(total_dict[i][k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])} for i in ['p1','p2','total']}
+		logger.debug(total_dict)
+		total_dict = {i:{k:f(total_dict[i][k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])} for i in [x for x in total_dict.keys() if not x == 'pr']}
 		logger.debug("Obtained the totals {}".format(total_dict))
 
 		return {
