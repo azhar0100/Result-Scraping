@@ -199,29 +199,22 @@ class Result_part2(ResultMarks):
 				,zip(*[x[1] for x in subjects.items()])))
 
 		total_dict = {}
-		def filter_out_grade(x):
-			check_list = ['obtained','total','pass']
-			return set(check_list) <= set(x.keys())
+		for subject_name,subject_dict in subjects.items():
+			for session,marks in subject_dict:
+				if session not in total_dict:
+					total_dict[session] = {}
 
-		def change_dict(subject_dict):
-			new_dict = {}
-			for sname,subject in subject_dict.items():
-				for session,marks in subject.items():
-					try:
-						new_dict[session][sname] = marks
-					except KeyError:
-						new_dict[session] = {}
-			logger.debug(new_dict)
-			return new_dict
+				if not isinstance(total_dict[session]['obtained'],list):
+					total_dict[session]['obtained']
+				total_dict[session]['obtained'].append(subject_dict['obtained'])
 
-		logger.debug(change_dict(subjects))
-
-		for session in ['p1','p2','total']:
-			(obtained,total,pass_status)= zip(*[x.items() for x in [x[1] for x in change_dict(subjects)[session].items()]])
-			total_dict[session] = {}
-			total_dict[session]['obtained'] = sum([x[1] for x in obtained])
-			total_dict[session]['total'] = sum([x[1] for x in total])
-			total_dict[session]['pass_status'] = reduce(lambda x,y:x and y,[x[1] for x in pass_status])
+				if not isinstance(total_dict[session]['total'],list):
+					total_dict[session]['total']
+				total_dict[session]['total'].append(subject_dict['total'])
+				
+				if not isinstance(total_dict[session]['pass'],list):
+					total_dict[session]['pass']
+				total_dict[session]['pass'].append(subject_dict['pass'])
 
 		logger.debug("Obtained the totals {}".format(total_dict))
 
