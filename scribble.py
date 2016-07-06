@@ -4,7 +4,7 @@ from result import Result
 import json
 
 logging.basicConfig(level=logging.INFO)
-R = Result('109222','SSC','2','2015',html=open("../ReqResult.htm",'r').read())
+R = Result('109243','SSC','2','2015',html=open("../ReqResult.htm",'r').read())
 print R.dict
 attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
 print getattr(R,'rollNum')

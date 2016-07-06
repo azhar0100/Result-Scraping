@@ -124,12 +124,7 @@ class Result_part2(ResultMarks):
 				return 0
 		marks_row = self.middle_table('tr',recursive=False)[4].td.table
 		logger.debug("Obtained the middle table.")
-		subjects = {
-			'p1' : {},
-			'p2' : {},
-			'pr' : {},
-			'total' : {}
-		}
+		subjects = {}
 		if not marks_row.find_all('tr',recursive=False)[3:-1]:
 			return {}
 
@@ -137,6 +132,7 @@ class Result_part2(ResultMarks):
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
 			logger.debug("Started for subject: {}".format(subject_name))
+			subjects[subject_name] = {}
 
 			obtained_iter = zip([x.string.strip() for x in marks_rec_td[4:8]],['p1','p2','pr','total'])
 			lowerdebug("Iterating over {}".format(obtained_iter))
@@ -148,13 +144,18 @@ class Result_part2(ResultMarks):
 				else:
 					logger.log(9,"Putting {} obtained for subject {} in {}".format(marks,subject_name,level))
 					try:
-						subjects[level][subject_name]={}
-						subjects[level][subject_name]['obtained'] = int(marks)
+						subjects[subject_name][level]={}
+						subjects[subject_name][level]['obtained'] = int(marks)
 						logger.log(8,"Putting {} obtained for subject {} in {} as int".format(marks,subject_name,level))
 					except ValueError:
-						subjects[level][subject_name]={}
-						subjects[level][subject_name]['obtained'] = marks
-						logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
+						if level == 'pr':
+							subjects[subject_name][level]={}
+							subjects[subject_name][level]['grade'] = marks
+							logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
+						elif level == 'total':
+							subjects[subject_name][level]={}
+							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items()])
+							logger.warning("Total value not found for subject:{}.Putting calculated value {}".format(subject_name,subjects[subject_name][level]['obtained']))
 			
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
 
