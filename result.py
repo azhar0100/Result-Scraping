@@ -136,26 +136,27 @@ class Result_part2(ResultMarks):
 			subject = subjects[subject_name]
 
 			obtained_iter = zip([x.string.strip() for x in marks_rec_td[4:8]],['p1','p2','pr','total'])
-			lowerdebug("Iterating over {}".format(obtained_iter))
+			lowerdebug("Iterating over {} for obtained marks.".format(obtained_iter))
 			for marks,level in obtained_iter:
 				# marks_rec_td[4:6] contains the obtained marks for p1,p2 and total
-				if marks == '---':
-					logger.log(9,"Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
-					continue
-				else:
+				# if marks == '---':
+				# 	logger.log(9,"Ignoring for subject {} in {} as it contains:{}".format(subject_name,level,marks))
+				# 	continue
+				if True:
 					logger.log(9,"Putting {} obtained for subject {} in {}".format(marks,subject_name,level))
 					try:
+						int(marks)
 						subjects[subject_name][level]={}
 						subjects[subject_name][level]['obtained'] = int(marks)
 						logger.log(8,"Putting {} obtained for subject {} in {} as int".format(marks,subject_name,level))
 					except ValueError:
-						if level == 'pr':
+						if level == 'pr' and not marks == '---' :
 							subjects[subject_name][level]={}
 							subjects[subject_name][level]['grade'] = marks
 							logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
 						elif level == 'total':
 							subjects[subject_name][level]={}
-							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items()])
+							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items() if x[1]])
 							logger.warning("Total value not found for subject:{}.Putting calculated value {}".format(subject_name,subjects[subject_name][level]['obtained']))
 			
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
@@ -169,7 +170,9 @@ class Result_part2(ResultMarks):
 			else:
 				logger.log(9,'total_tuple is {}'.format(total_tuple))
 				for x,y in zip(['p1','p2','total'],total_tuple):
-					subjects[x][subject_name]['total'] = y
+					# Temporary log
+					logger.debug(subject[x])
+					subject[x]['total'] = y
 					logger.log(8,"Putting {} total for subject {} in {}".format(y,subject_name,x))
 				# total_total will be calculated later.
 
