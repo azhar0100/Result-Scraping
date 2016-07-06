@@ -214,9 +214,6 @@ class Result_part2(ResultMarks):
 					total_dict[session]['total'] = []
 					total_dict[session]['pass'] = []
 
-		total_dict['obtained'] = sum(total_dict['obtained'])
-		total_dict['total'] = sum(total_dict['total'])
-		total_dict['pass'] = reduce(lambda y,z: y and z,total_dict['pass'])
 		logger.debug({k:f(total_dict[k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])})
 		logger.debug("Obtained the totals {}".format(total_dict))
 
