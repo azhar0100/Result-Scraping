@@ -53,7 +53,7 @@ def get_result_list(rollNum,status,html):
 	logger.debug("Called on rollNum:{}".format(rollNum))
 	rslt = Result(rollNum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
 	attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
-	result_list = [getattr(rslt,x) for x in attr_list]
+	result_list = [rslt.dict[x] for x in attr_list]
 	result_list.insert(1,status)
 	result_list.append(json.dumps(rslt.marks_row))
 	logger.info(result_list[0:-1])
