@@ -53,17 +53,14 @@ def get_result_list(rollNum,status,html):
 	logger.debug("Called on rollNum:{}".format(rollNum))
 	rslt = Result(rollNum,*[str(config[x]) for x in ['DEGREE','PART','YEAR']],html=html)
 	attr_list = ['rollNum','regNum','student_name','father_name','centre','date_of_birth']
-	result_list = [rslt.dict[x] for x in attr_list]
+	result_list = [getattr(rslt,x) for x in attr_list]
 	result_list.insert(1,status)
 	result_list.append(json.dumps(rslt.marks_row))
 	logger.info(result_list[0:-1])
 	return tuple(result_list)
 
 def call_result_list(arg_tuple):
-	try:
-		return get_result_list(*arg_tuple)
-	except Exception:
-		return (arg_tuple,None)
+	return get_result_list(*arg_tuple)
 if __name__ == '__main__':
 	for chunk in split_every(100,key_rollnums):
 		chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
@@ -73,7 +70,7 @@ if __name__ == '__main__':
 			if reslt[1]:
 				c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
 			elif reslt[1] == None:
-				logger.critical("None Returned for args {}!".format(reslt[0]))
+				logger.critical("None Returned for args {}!".format(reslt[0][0:2]))
 		logger.info("Commit Now!")
 		conn.commit()
 		logger.info("Joining the process Pool")
