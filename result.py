@@ -64,7 +64,10 @@ class BaseResult(object):
 	@lazy_property
 	def reg_row(self):
 		reg_row = self.middle_table('tr',recursive=False)[1].td.table.tr
-		regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
+		try:
+			regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
+		except AttributeError:
+			regNum = ''
 		return {"regNum":regNum}
 
 	@lazy_property
@@ -91,16 +94,18 @@ class BaseResult(object):
 	@lazy_property
 	def dict(self):
 		result_dict = {}
+		attr_list = ["rollNum","degree","session","year"]
+		result_dict.update({x:getattr(self,x) for x in attr_list})
 		result_dict.update(self.reg_row)
 		result_dict.update(self.degree_row)
 		result_dict.update(self.credential_row)
 		return result_dict
 
-	def __getattr__(self,name):
-		try:
-			return self.dict[name]
-		except KeyError:
-			raise AttributeError
+	# def __getattr__(self,name):
+	# 	try:
+	# 		return self.dict[name]
+	# 	except KeyError:
+	# 		raise AttributeError
 
 class ResultMarks(BaseResult):
 
