@@ -88,7 +88,7 @@ class BaseResult(object):
 		}
 
 	
-	@property
+	@lazy_property
 	def dict(self):
 		result_dict = {}
 		result_dict.update(self.reg_row)
