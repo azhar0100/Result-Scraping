@@ -63,17 +63,17 @@ def call_result_list(arg_tuple):
 	try:
 		return get_result_list(*arg_tuple)
 	except Exception:
-		return None
+		return (arg_tuple,None)
 if __name__ == '__main__':
 	for chunk in split_every(100,key_rollnums):
 		chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
 		pool = Pool()
 		result_chunk = pool.imap(call_result_list,chunk_data)
 		for reslt in result_chunk:
-			if reslt:
+			if reslt[1]:
 				c.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
-			elif reslt == None:
-				logger.critical("None Returned!")
+			elif reslt[1] == None:
+				logger.critical("None Returned for args {}!".format(reslt[0]))
 		logger.info("Commit Now!")
 		conn.commit()
 		logger.info("Joining the process Pool")

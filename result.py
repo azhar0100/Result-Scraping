@@ -6,6 +6,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from lib import lazy_property
 import logging
+import collections
 
 url = 'http://result.biselahore.com/Home/Result'
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -128,12 +129,14 @@ class Result_part2(ResultMarks):
 		if not marks_row.find_all('tr',recursive=False)[3:-1]:
 			return {}
 
+		total_sessions = set()
 		for marks_rec in marks_row.find_all('tr',recursive=False)[3:-1]:
 			marks_rec_td = marks_rec.find_all('td',recursive=False)
 			subject_name = marks_rec_td[0].string.strip()
 			logger.debug("Started for subject: {}".format(subject_name))
 			subjects[subject_name] = {}
 			subject = subjects[subject_name]
+			sessions = collections.OrderedDict()
 
 			obtained_iter = zip([x.string.strip() for x in marks_rec_td[4:8]],['p1','p2','pr','total'])
 			lowerdebug("Iterating over {} for obtained marks.".format(obtained_iter))
@@ -148,6 +151,7 @@ class Result_part2(ResultMarks):
 						int(marks)
 						subject[level]={}
 						subject[level]['obtained'] = int(marks)
+						sessions[level] = None
 						logger.log(8,"Putting {} obtained for subject {} in {} as int".format(marks,subject_name,level))
 					except ValueError:
 						if level == 'pr' and not marks == '---' :
@@ -157,41 +161,34 @@ class Result_part2(ResultMarks):
 						elif level == 'total':
 							subject[level]={}
 							subject[level]['obtained'] = sum([x[1]['obtained'] for x in subject.items() if 'obtained' in x[1].keys()])
-							logger.warning("Total value not found for subject:{}.Putting calculated value {}".format(subject_name,subjects[subject_name][level]['obtained']))
+							sessions[level] = None
+							logger.log(8,"Total value of obtained marks not found for subject:{}.Putting calculated value {}".format(subject_name,subject[level]['obtained']))
 			
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
 
 			if len(total_tuple) == 2:
 				logger.log(9,"Subject {} has only a 2-tuple : {}".format(subject_name,total_tuple))
-				for key in subject.keys():
+				for key in sessions:
 					session = subject[key]
 					session['total'] = total_tuple[0]
 					logger.log(8,"Putting total marks {} for subject {} in session {}".format(total_tuple[0],subject_name,key))
 			else:
 				logger.log(9,'total_tuple is {}'.format(total_tuple))
-				for x,y in zip(['p1','p2','total'],total_tuple):
+				for x,y in zip(['p1','p2','total','pr'],total_tuple):
 					try:
-						subject[x]['total'] = y
+						subject[x]['total'] = int(y)
+						logger.log(8,"Putting {} total for subject {} in {}".format(y,subject_name,x))
 					except KeyError:
 						continue
-					logger.log(8,"Putting {} total for subject {} in {}".format(y,subject_name,x))
-				# total_total will be calculated later.
-
-			try:
-				subjects['pr'][subject_name]['total'] = int(total_tuple[3])
-				logging.debug("Practical is {}".format(subjects['pr'][subject_name]))
-			except Exception:
-				pass
-
-			for i in ['p1','p2','total']:
-				try:
-					x = subject[i]
-				except KeyError:
-					continue
+					except ValueError:
+						continue
+			for session in sessions:
+				x = subject[session]
 				x['pass'] = not (float(x['obtained']) / float(x['total'])) < (1.0/3.0)
-				logger.log(8,"Putting pass status {} for subject {} in {} ".format(x['pass'],subject_name,i))
-			
-			logger.debug("Finished the result for subject:{}".format(subject_name))
+				logger.log(8,"Putting pass status {} for subject {} in {} ".format(x['pass'],subject_name,session))
+
+			total_sessions.update(sessions.keys())
+			logger.debug("Finished the result for subject:{} as sessions are {} and total are ".format(subject_name,sessions.keys()))
 
 		logger.debug("Finished obtaining result for subjects.")
 		def total_marks(subjects):
@@ -199,21 +196,24 @@ class Result_part2(ResultMarks):
 				[sum,sum,lambda x:reduce(lambda y,z: y and z,x)]
 				,zip(*[x[1] for x in subjects.items()])))
 
-		total_dict = {}
+		def filter_out_grade(x):
+			check_list = ['obtained','total','pass']
+			return set(check_list) <= set(x.keys())
+
+		total_dict = {k:{
+		'obtained' : [],
+		'total'    : [],
+		'pass'     : []
+		} for k in total_sessions}
+
+		logger.debug("Total Dict Formed is {} as total sessions found are {}".format(total_dict,total_sessions))
 		for subject_name,subject_dict in subjects.items():
 			logger.log(7,"Started collection In Subject {}:{}".format(subject_name,subject_dict))
-			for session,marks in subject_dict.items():
+			for session,marks in {k:v for (k,v) in subject_dict.items() if filter_out_grade(v)}.items():
 				logger.log(8,"Starting total collection on session {} in subject {}".format(session,subject_name))
-				if session not in total_dict:
-					total_dict[session] = {}
-				try:
-					total_dict[session]['obtained'].append(marks['obtained'])
-					total_dict[session]['total'].append(marks['total'])
-					total_dict[session]['pass'].append(marks['pass'])
-				except KeyError:
-					total_dict[session]['obtained'] = []
-					total_dict[session]['total'] = []
-					total_dict[session]['pass'] = []
+				total_dict[session]['obtained'].append(marks['obtained'])
+				total_dict[session]['total'].append(marks['total'])
+				total_dict[session]['pass'].append(marks['pass'])
 
 		logger.debug(total_dict)
 		total_dict = {i:{k:f(total_dict[i][k]) for (k,f) in zip(['obtained','total','pass'],[sum,sum,lambda x:reduce(lambda y,z: y and z,x)])} for i in [x for x in total_dict.keys() if not x == 'pr']}
