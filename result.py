@@ -146,17 +146,17 @@ class Result_part2(ResultMarks):
 					logger.log(9,"Found {} obtained for subject {} in {}".format(marks,subject_name,level))
 					try:
 						int(marks)
-						subjects[subject_name][level]={}
-						subjects[subject_name][level]['obtained'] = int(marks)
+						subject[level]={}
+						subject[level]['obtained'] = int(marks)
 						logger.log(8,"Putting {} obtained for subject {} in {} as int".format(marks,subject_name,level))
 					except ValueError:
 						if level == 'pr' and not marks == '---' :
-							subjects[subject_name][level]={}
-							subjects[subject_name][level]['grade'] = marks
+							subject[level]={}
+							subject[level]['grade'] = marks
 							logger.log(8,"Putting {} obtained for subject {} in {} as grade".format(marks,subject_name,level))
 						elif level == 'total':
-							subjects[subject_name][level]={}
-							subjects[subject_name][level]['obtained'] = sum([x[1]['obtained'] for x in subjects[subject_name].items() if 'obtained' in x[1].keys()])
+							subject[level]={}
+							subject[level]['obtained'] = sum([x[1]['obtained'] for x in subject.items() if 'obtained' in x[1].keys()])
 							logger.warning("Total value not found for subject:{}.Putting calculated value {}".format(subject_name,subjects[subject_name][level]['obtained']))
 			
 			total_tuple = tuple((int(x) for x in re.split(r'[+=]',marks_rec_td[1].string))) + (marks_rec_td[2].string,)
