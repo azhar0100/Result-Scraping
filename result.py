@@ -67,7 +67,7 @@ class BaseResult(object):
 		try:
 			regNum  = get_tag_contents(reg_row)[2].p.u.string.strip()
 		except AttributeError:
-			regNum = ''
+			regNum = None
 		return {"regNum":regNum}
 
 	@lazy_property
