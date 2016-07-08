@@ -2,7 +2,7 @@
 
 import re
 import requests
-from datetime import datetime
+from datetime import datetime,date
 from bs4 import BeautifulSoup
 from lib import lazy_property
 import logging
@@ -82,12 +82,16 @@ class BaseResult(object):
 	@lazy_property
 	def credential_row(self):
 		credential_row = self.middle_table('tr',recursive=False)[3].table
+		try:
+			date_of_birth = datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
+		except TypeError:
+			date_of_birth = None
 
 		return {
 			"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
 			"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
 			"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string),
-			"date_of_birth": datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
+			"date_of_birth": date_of_birth
 		}
 
 	
