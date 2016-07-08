@@ -4,7 +4,7 @@ from result import Result
 import json
 import sqlite3
 from os import getenv
-conn = sqlite3.connect('/home/azhar/db/rollNumFile.sqlite')
+conn = sqlite3.connect(getenv('DBPATH'))
 
 logging.basicConfig(level=logging.INFO)
 
