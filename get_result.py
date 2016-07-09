@@ -20,16 +20,6 @@ stream_handler.addFilter(logging.Filter("get_result"))
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
-logger.addHandler(file_handler)
-
-try:
-	with open(conf_path,'r') as f:
-		file_config = json.loads(f.read())
-except IOError:
-	file_config = {}
-logger.info("Read config as {}".format(file_config))
-config = {}
-config.update(file_config)
 
 def call_result(arg_tuple):
 	return Result(*arg_tuple)
@@ -63,16 +53,19 @@ def get_result(dbpath=None,
 	file_handler = logging.FileHandler("{}/get_result.log".format(log_dir))
 	file_handler.setLevel(logging.DEBUG)
 	file_handler.setFormatter(formatter)
-	
+	logger.addHandler(file_handler)
+
+	logger.info("Trying to form connection to file:{}".format(dbpath))
 	conn = sqlite3.connect(dbpath)
-	conn.execute('''CREATE TABLE IF NOT EXISTS rollnums (
-	rollnum INTEGER PRIMARY KEY,
-	status INTEGER )''')
+	logger.info("Formed connection with the file:{}".format(dbpath))
+	conn.execute('''CREATE TABLE IF NOT EXISTS rolls (
+		rollnum INTEGER PRIMARY KEY,
+		status INTEGER
+		)''')
 	conn.execute('''CREATE TABLE IF NOT EXISTS resultHtml(
 		rollnum INTEGER PRIMARY KEY,
 		html TEXT
 		)''')
-	logger.info("Formed connection with the file:{}".format(dbpath))
 	avoid_rollNums = set([x[0] for x in shallow_query(conn)])
 	logger.info("Formed the avoid_rollNums set")
 	ROLL_NUM_LIST = [x for x in range(000000,999999) if  x not in avoid_rollNums]
@@ -84,8 +77,9 @@ def get_result(dbpath=None,
 	count = 0
 	for result in results:
 		count += 1
-		c.execute(r'''INSERT OR REPLACE INTO rollnums VALUES(?,?,?)''',result)
 		c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
+		if result[1] == 1:
+			c.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',result)
 		if result[1] == 2:
 			ROLL_NUM_TUPLE_LIST.append((str(result[0]),degree,session,year))
 		if count % database_chunk_size == 0:
