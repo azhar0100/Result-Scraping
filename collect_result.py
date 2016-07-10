@@ -20,23 +20,6 @@ file_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
-conn = sqlite3.connect(config['DB_PATH'])
-insert_conn = sqlite3.connect(config['DB_PATH'])
-logger.info("Formed connection with the file : {}".format(config['DB_PATH']))
-c = conn.cursor()
-insert_c = insert_conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS result(
-		rollnum INTEGER PRIMARY KEY,
-		status INTEGER REFERENCES rolls(status),
-		registration INTEGER,
-		name TEXT,
-		father_name TEXT,
-		centre TEXT,
-		date_of_birth DATE,
-		marks TEXT)''')
-avoid_rollNums = set([x[0] for x in c.execute('''SELECT rollnum FROM result''')])
-logger.info("Formed avoid_rollnums")
-key_rollnums = [x for (x,) in c.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 
 def get_result_list(rollNum,degree,part,year,status,html):
 	logger.debug("Called on rollNum:{}".format(rollNum))
@@ -50,7 +33,28 @@ def get_result_list(rollNum,degree,part,year,status,html):
 
 def call_result_list(arg_tuple):
 	return get_result_list(*arg_tuple)
-def collect_result():
+def collect_result(
+	dbpath='',
+
+	):
+
+	conn = sqlite3.connect(dbpath)
+	insert_conn = sqlite3.connect(dbpath)
+	logger.info("Formed connection with the file : {}".format(dbpath))
+	c = conn.cursor()
+	insert_c = insert_conn.cursor()
+	c.execute('''CREATE TABLE IF NOT EXISTS result(
+			rollnum INTEGER PRIMARY KEY,
+			status INTEGER REFERENCES rolls(status),
+			registration INTEGER,
+			name TEXT,
+			father_name TEXT,
+			centre TEXT,
+			date_of_birth DATE,
+			marks TEXT)''')
+	avoid_rollNums = set([x[0] for x in c.execute('''SELECT rollnum FROM result''')])
+	logger.info("Formed avoid_rollnums")
+	key_rollnums = [x for (x,) in c.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 	for chunk in split_every(100,key_rollnums):
 		chunk_data = [c.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
 		pool = Pool()
