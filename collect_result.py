@@ -55,15 +55,9 @@ def collect_result(
 	logger.info("Formed avoid_rollnums")
 	key_rollnums = [x for (x,) in conn.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
 	for chunk in split_every(100,key_rollnums):
-		chunk_data = [conn.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk]
-		param_data = []
-		for chunk_datum in chunk_data:
-			param_datum = list(chunk_datum)
-			[param_datum.insert(*x) for x in zip(range(1,3+1),[degree,session,year])]
-			param_data.append(param_datum)
-			logger.info(param_datum[0:-1])
+		chunk_data = (conn.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk)
 		pool = Pool()
-		result_chunk = pool.imap(call_result_list,param_data)
+		result_chunk = pool.imap(call_result_list,[(x,)+(degree,session,year)+(y,z) for (x,y,z) in chunk_data])
 		for reslt in result_chunk:
 			if reslt[1]:
 				conn.execute('''INSERT INTO result VALUES(?,?,?,?,?,?,?,?)''',reslt)
