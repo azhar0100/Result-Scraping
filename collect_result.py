@@ -53,7 +53,7 @@ def collect_result(
 			marks TEXT)''')
 	avoid_rollNums = set([x[0] for x in conn.execute('''SELECT rollnum FROM result''')])
 	logger.info("Formed avoid_rollnums")
-	key_rollnums = [x for (x,) in conn.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums]
+	key_rollnums = (x for (x,) in conn.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums)
 	for chunk in split_every(100,key_rollnums):
 		chunk_data = (conn.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk)
 		pool = Pool()
