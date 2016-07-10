@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import configargparse
 from get_result import get_result
+from collect_result import collect_result
 
 def call_get_result(args):
 	arglist = ['dbpath','degree','session','year','request_chunk_size','database_chunk_size','pool_size']
 	get_result(**{ k:getattr(args,k) for k in arglist })
 
-def collect_get_result(args):
+def call_collect_result(args):
 	arglist = ['dbpath','degree','session','year']
 	collect_result(**{k:getattr(args,k) for k in arglist})
 
