@@ -37,7 +37,8 @@ def collect_result(
 	dbpath=None,
 	degree=None,
 	session=None,
-	year=None
+	year=None,
+	chunk_size=100
 	):
 
 	conn = sqlite3.connect(dbpath)
@@ -54,7 +55,7 @@ def collect_result(
 	avoid_rollNums = set([x[0] for x in conn.execute('''SELECT rollnum FROM result''')])
 	logger.info("Formed avoid_rollnums")
 	key_rollnums = (x for (x,) in conn.execute('''SELECT rollnum FROM rolls WHERE status = 1''') if x not in avoid_rollNums)
-	for chunk in split_every(100,key_rollnums):
+	for chunk in split_every(chunk_size,key_rollnums):
 		chunk_data = (conn.execute('''SELECT rollnum,status,html FROM rollnums WHERE rollnum = {}'''.format(x)).fetchone() for x in chunk)
 		pool = Pool()
 		result_chunk = pool.imap(call_result_list,[(x,)+(degree,session,year)+(y,z) for (x,y,z) in chunk_data])

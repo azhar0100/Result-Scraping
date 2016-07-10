@@ -8,7 +8,7 @@ def call_get_result(args):
 	get_result(**{ k:getattr(args,k) for k in arglist })
 
 def call_collect_result(args):
-	arglist = ['dbpath','degree','session','year']
+	arglist = ['dbpath','degree','session','year','chunk_size']
 	collect_result(**{k:getattr(args,k) for k in arglist})
 
 parser = configargparse.Parser()
@@ -33,6 +33,7 @@ parser_collect.add('--dbpath',required=True)
 parser_collect.add('--degree',required=True)
 parser_collect.add('--session',required=True)
 parser_collect.add('--year',required=True,type=int)
+parser_collect.add('-j','--chunk-size',type=int,default=100)
 parser_collect.set_defaults(func=call_collect_result)
 
 args = parser.parse_args()
