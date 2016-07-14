@@ -7,9 +7,12 @@ def split_every(n, iterable):
         yield piece
         piece = list(islice(i, n))
 
-def lazy_imap(func,arglist,pool,chunksize=1):
+def lazy_imap(func,arglist,pool,chunksize=1,ordered=True):
 	for chunk in split_every(chunksize,arglist):
-		chunk_results = pool.imap_unordered(func,chunk)
+		if ordered:
+			chunk_results = pool.imap(func,chunk)
+		else:
+			chunk_results = pool.imap_unordered(func,chunk)
 		for chunk_result in chunk_results:
 			yield chunk_result
 
