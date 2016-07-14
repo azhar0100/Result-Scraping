@@ -74,7 +74,7 @@ def get_result(dbpath=None,
 
 	for current_degree in degree:
 		for current_session in session:
-			avoid_rollNums = set((x for (x,) in conn.execute(r'''SELECT rollnum FROM rolls 
+			avoid_rollNums = set((x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus
 				WHERE status=1 
 				AND (status=0 AND degree = ? AND session = ?)''',
 				(current_degree,current_session))))
@@ -87,7 +87,7 @@ def get_result(dbpath=None,
 			count = 0
 			for result in results:
 				count += 1
-				conn.execute(r'''INSERT OR REPLACE INTO rollStatus VALUES(?,?,?,?)''',result[0:-1])
+				conn.execute(r'''INSERT OR REPLACE INTO rollStatus VALUES(?,?,?,?)''',result[0:3] + (result[4],))
 				if result[1] == 1:
 					conn.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',tuple((result[x] for x in [0,-1])))
 				if result[1] == 2:
@@ -95,7 +95,7 @@ def get_result(dbpath=None,
 				if count % database_chunk_size == 0:
 					logger.info("Commit Now at {}".format(count))
 					conn.commit()
-				logger.info(result[0:2])
+				logger.info(result[0:-1])
 			logger.info("End Commit at {}".format(count))
 			conn.commit()
 			logger.info( "========seconds============={}".format(time()-start_time))
