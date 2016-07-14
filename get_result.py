@@ -87,9 +87,9 @@ def get_result(dbpath=None,
 			count = 0
 			for result in results:
 				count += 1
-				c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
+				c.execute(r'''INSERT OR REPLACE INTO rollStatus VALUES(?,?,?,?)''',result[0:-1])
 				if result[1] == 1:
-					c.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',result)
+					c.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',tuple((result[x] for x in [0,-1])))
 				if result[1] == 2:
 					ROLL_NUM_TUPLE_LIST.append((str(result[0]),degree,session,year))
 				if count % database_chunk_size == 0:
