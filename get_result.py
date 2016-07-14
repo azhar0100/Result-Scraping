@@ -58,9 +58,12 @@ def get_result(dbpath=None,
 	logger.info("Trying to form connection to file:{}".format(dbpath))
 	conn = sqlite3.connect(dbpath)
 	logger.info("Formed connection with the file:{}".format(dbpath))
-	conn.execute('''CREATE TABLE IF NOT EXISTS rolls (
-		rollnum INTEGER PRIMARY KEY,
-		status INTEGER
+	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus (
+		rollnum INTEGER,
+		degree TEXT,
+		session INTEGER,
+		status INTEGER,
+		PRIMARY KEY(rollnum,degree,session)
 		)''')
 	conn.execute('''CREATE TABLE IF NOT EXISTS resultHtml(
 		rollnum INTEGER PRIMARY KEY,
