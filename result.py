@@ -43,7 +43,7 @@ class BaseResult(object):
 
 	def __init__(self,rollNum,degree,session,year,html=''):
 		if html == '':
-			self.html = get_html_response(rollNum,degree,session,year).text
+			self.html = get_html_response(repr(rollNum).zfill(6),repr(degree),repr(session),repr(year)).text
 		else:
 			self.html = html
 		if re.search(r'Student not found.',self.html):
