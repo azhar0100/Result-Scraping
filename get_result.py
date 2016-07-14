@@ -39,11 +39,13 @@ def deep_query(cursor):
 	return cursor.execute(r'''SELECT rollnum FROM rollnums WHERE html!="" OR status=0 ''').fetchall()
 
 def shallow_query(cursor):
-	return cursor.execute(r'''SELECT rollnum FROM rolls WHERE status=0 OR status=1''').fetchall()
+	return cursor.execute(r'''SELECT rollnum FROM rolls 
+		WHERE status=1 
+		AND (status=0 AND degree = ? AND session = ?)''',(degree,session)).fetchall()
 
 def get_result(dbpath=None,
-	degree=None,
-	session=None,
+	degree=['SSC','HSSC'],
+	session=range(3),
 	year=None,
 	request_chunk_size=1000,
 	database_chunk_size=100,
@@ -69,29 +71,34 @@ def get_result(dbpath=None,
 		rollnum INTEGER PRIMARY KEY,
 		html TEXT
 		)''')
-	avoid_rollNums = set([x[0] for x in shallow_query(conn)])
-	logger.info("Formed the avoid_rollNums set")
-	ROLL_NUM_LIST = [x for x in range(000000,999999) if  x not in avoid_rollNums]
-	logger.info("Formed the ROLL_NUM_LIST")
-	ROLL_NUM_TUPLE_LIST= [(str(x).zfill(6),degree,session,year) for x in ROLL_NUM_LIST]
-	start_time = time()
-	pool = Pool(pool_size)
-	results = lazy_imap(get_result_html,ROLL_NUM_TUPLE_LIST,pool,request_chunk_size)
-	count = 0
-	for result in results:
-		count += 1
-		c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
-		if result[1] == 1:
-			c.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',result)
-		if result[1] == 2:
-			ROLL_NUM_TUPLE_LIST.append((str(result[0]),degree,session,year))
-		if count % database_chunk_size == 0:
-			logger.info("Commit Now at {}".format(count))
+
+	for current_degree in degree:
+		for current_session in session:
+			avoid_rollNums = set((x for (x,) in conn.execute(r'''SELECT rollnum FROM rolls 
+				WHERE status=1 
+				AND (status=0 AND degree = ? AND session = ?)''',
+				(current_degree,current_session))))
+			logger.info("Formed the avoid_rollNums set")
+			ROLL_NUM_LIST = [(x,current_degree,current_session,year) for x in (x for x in range(000000,999999) if  x not in avoid_rollNums)]
+			logger.info("Formed the ROLL_NUM_LIST")
+			start_time = time()
+			pool = Pool(pool_size)
+			results = lazy_imap(get_result_html,ROLL_NUM_LIST,pool,request_chunk_size)
+			count = 0
+			for result in results:
+				count += 1
+				c.execute(r'''INSERT OR REPLACE INTO rolls VALUES(?,?)''',result[0:2])
+				if result[1] == 1:
+					c.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',result)
+				if result[1] == 2:
+					ROLL_NUM_TUPLE_LIST.append((str(result[0]),degree,session,year))
+				if count % database_chunk_size == 0:
+					logger.info("Commit Now at {}".format(count))
+					conn.commit()
+				logger.info(result[0:2])
+			logger.info("End Commit at {}".format(count))
 			conn.commit()
-		logger.info(result[0:2])
-	logger.info("End Commit at {}".format(count))
-	conn.commit()
-	logger.info( "========seconds============={}".format(time()-start_time))
-	pool.close()
-	pool.join()
+			logger.info( "========seconds============={}".format(time()-start_time))
+			pool.close()
+			pool.join()
 
