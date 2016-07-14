@@ -26,14 +26,14 @@ def call_result(arg_tuple):
 
 def get_result_html(arg_tuple):
 	try:
-		rslt = call_result(arg_tuple)
-		return (rslt.rollNum,1,rslt.html) 
+		html = call_result(arg_tuple).html
+		return arg_tuple + (1,html) 
 	except StudentNotFound as e:
-		return (arg_tuple[0],0,'')
+		return (arg_tuple) + (0,'')
 	except IOError as e:
-		return (arg_tuple[0],2,'')
+		return (arg_tuple) + (2,'')
 	except Exception as e:
-		return (arg_tuple[0],3,'')
+		return (arg_tuple) + (3,'')
 
 def deep_query(cursor):
 	return cursor.execute(r'''SELECT rollnum FROM rollnums WHERE html!="" OR status=0 ''').fetchall()
