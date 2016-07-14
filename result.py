@@ -257,8 +257,10 @@ class Result_part1(ResultMarks):
 
 
 def Result(rollNum,degree,session,year,html=''):
-	if session == '1':
+	if session == 0:
+		return BaseResult(rollNum,degree,session,year)
+	if session == 1:
 		return Result_part1(rollNum,degree,session,year,html=html)
-	if session == '2':
+	if session == 2:
 		return Result_part2(rollNum,degree,session,year,html=html)
 	
