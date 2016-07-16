@@ -74,10 +74,7 @@ def get_result(dbpath=None,
 
 	for current_degree in degree:
 		for current_session in session:
-			avoid_rollNums = set((x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus
-				WHERE status=1 
-				AND (status=0 AND degree = ? AND session = ?)''',
-				(current_degree,current_session))))
+			avoid_rollNums = set([x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus WHERE status=1 OR (status=0 AND degree = ? AND session = ?)''',(current_degree,current_session))])
 			logger.info("Formed the avoid_rollNums set")
 			ROLL_NUM_LIST = [(x,current_degree,current_session,year) for x in (x for x in range(000000,999999) if  x not in avoid_rollNums)]
 			logger.info("Formed the ROLL_NUM_LIST")
