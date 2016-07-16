@@ -31,7 +31,7 @@ def lazy_property(fn):
 
 	return _lazy_property
 
-def throw_away_property(fn)
+def throw_away_property(fn):
 	"""This decorator should be applied before lazy_property"""
 	prop = lazy_property(fn)
 	if not hasattr(self,'global_deps')
@@ -47,5 +47,6 @@ def depends(self,prop):
 		self.global_deps.remove(prop)
 		if not self.global_deps:
 			del self.prop
+		return result
 
 	return _decorated
