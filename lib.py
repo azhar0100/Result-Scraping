@@ -26,3 +26,27 @@ def lazy_property(fn):
 		return getattr(self,attr_name)
 
 	return _lazy_property
+
+class ThrowAwayProperty(object):
+
+	def __init__(self,fn):
+		self.dependencies = []
+		self.fn = lazy_property(fn)
+
+	def __call__(self,*args,**kwargs):
+		return self.fn(*args,**kwargs)
+
+	def dependency(other_self,fn):
+		other_self.dependencies.append[fn]
+		return DependantProperty(fn,self)
+
+class DependantProperty(object):
+
+	def __init__(self,fn,prop):
+		self.fn = fn
+		self.prop = prop
+
+	def __call__(self,*args,**kwargs):
+		result = self.fn(*args,**kwargs)
+		self.prop.dependencies.remove(value)
+		return result
