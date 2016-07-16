@@ -10,6 +10,7 @@ import re
 import sqlite3
 import json
 import logging
+import atexit
 start_time = time()
 
 logger = logging.getLogger('get_result')
@@ -60,6 +61,8 @@ def get_result(dbpath=None,
 	logger.info("Trying to form connection to file:{}".format(dbpath))
 	conn = sqlite3.connect(dbpath)
 	logger.info("Formed connection with the file:{}".format(dbpath))
+
+	atexit.register(lambda x: x.commit() , conn)
 	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus (
 		rollnum INTEGER,
 		degree TEXT,
