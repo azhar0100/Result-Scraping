@@ -34,7 +34,7 @@ class ThrowAwayProperty(object):
 		self.fn = lazy_property(fn)
 
 	def __call__(self,*args,**kwargs):
-		return self.fn(*args,**kwargs)
+		return self.fn.fget(*args,**kwargs)
 
 	def dependency(other_self,fn):
 		other_self.dependencies.append[fn]
@@ -43,10 +43,10 @@ class ThrowAwayProperty(object):
 class DependantProperty(object):
 
 	def __init__(self,fn,prop):
-		self.fn = fn
+		self.fn = lazy_property(fn)
 		self.prop = prop
 
 	def __call__(self,*args,**kwargs):
-		result = self.fn(*args,**kwargs)
+		result = self.fn.fget(*args,**kwargs)
 		self.prop.dependencies.remove(value)
 		return result
