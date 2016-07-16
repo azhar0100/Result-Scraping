@@ -25,28 +25,27 @@ def lazy_property(fn):
 			setattr(self,attr_name,fn(self))
 		return getattr(self,attr_name)
 
+	@_lazy_property.deleter
+	def _lazy_deleter:
+		delattr(self,attr_name)
+
 	return _lazy_property
 
-class ThrowAwayProperty(object):
+def throw_away_property(fn)
+	"""This decorator should be applied before lazy_property"""
+	prop = lazy_property(fn)
+	if not hasattr(self,'global_deps')
+		setattr(self,'global_deps',{})
+	getattr(self,'global_deps').update({prop:[]})
 
-	def __init__(self,fn):
-		self.dependencies = []
-		self.fn = lazy_property(fn)
+	return prop
 
-	def __call__(self,*args,**kwargs):
-		return self.fn.fget(*args,**kwargs)
+def depends(self,prop):
+	"""This decorator should be applied before lazy_property"""
+	def _decorated(fn,*args,**kwargs)
+		result = fn(*args,**kwargs)
+		self.global_deps.remove(prop)
+		if not self.global_deps:
+			del self.prop
 
-	def dependency(other_self,fn):
-		other_self.dependencies.append[fn]
-		return DependantProperty(fn,self)
-
-class DependantProperty(object):
-
-	def __init__(self,fn,prop):
-		self.fn = lazy_property(fn)
-		self.prop = prop
-
-	def __call__(self,*args,**kwargs):
-		result = self.fn.fget(*args,**kwargs)
-		self.prop.dependencies.remove(value)
-		return result
+	return _decorated
