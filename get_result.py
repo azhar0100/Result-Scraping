@@ -64,7 +64,10 @@ def get_result(dbpath=None,
 	conn = sqlite3.connect(dbpath)
 	logger.info("Formed connection with the file:{}".format(dbpath))
 
-	atexit.register(lambda x: x.commit() , conn)
+	def end_commit(conn):
+		logger.info("End Commit")
+		conn.commit()
+	atexit.register(end_commit , conn)
 	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus(
 		rollnum INTEGER,
 		degree INTEGER,
@@ -110,8 +113,6 @@ def get_result(dbpath=None,
 					logger.info("Commit Now at {}".format(count))
 					conn.commit()
 				logger.info(result[0:-1])
-			logger.info("End Commit at {}".format(count))
-			conn.commit()
 			logger.info( "========seconds============={}".format(time()-start_time))
 			pool.close()
 			pool.join()
