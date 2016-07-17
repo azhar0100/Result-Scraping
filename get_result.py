@@ -52,6 +52,8 @@ def get_result(dbpath=None,
 	database_chunk_size=100,
 	pool_size=100,
 	log_dir='.'):
+
+	degree_ints = {'SSC':1,'HSSC':2}
 	
 	file_handler = logging.FileHandler("{}/get_result.log".format(log_dir))
 	file_handler.setLevel(logging.DEBUG)
@@ -63,13 +65,15 @@ def get_result(dbpath=None,
 	logger.info("Formed connection with the file:{}".format(dbpath))
 
 	atexit.register(lambda x: x.commit() , conn)
-	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus (
+	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus(
 		rollnum INTEGER,
-		degree TEXT,
+		degree INTEGER,
 		session INTEGER,
 		status INTEGER,
+		FOREIGN KEY(degree) REFERENCES degrees(id),
 		PRIMARY KEY(rollnum,degree,session)
-		)''')
+		);
+	''')
 	conn.execute('''CREATE TABLE IF NOT EXISTS resultHtml(
 		rollnum INTEGER PRIMARY KEY,
 		html TEXT
