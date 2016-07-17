@@ -74,12 +74,18 @@ def get_result(dbpath=None,
 		PRIMARY KEY(rollnum,degree,session)
 		);
 	''')
+	conn.execute('''CREATE TABLE IF NOT EXISTS degrees(
+		id INTEGER PRIMARY KEY,
+		degree_name TEXT UNIQUE
+		)''')
 	conn.execute('''CREATE TABLE IF NOT EXISTS resultHtml(
 		rollnum INTEGER PRIMARY KEY,
-		html TEXT
+		html TEXT UNIQUE
 		)''')
 
 	for current_degree in degree:
+		conn.execute('''INSERT OR IGNORE INTO degrees VALUES(?,?)''',degree_ints.items())
+
 		for current_session in session:
 			avoid_rollNums = set([x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus WHERE status=1 OR (status=0 AND degree = ? AND session = ?)''',(current_degree,current_session))])
 			logger.info("Formed the avoid_rollNums set")
@@ -91,7 +97,11 @@ def get_result(dbpath=None,
 			count = 0
 			for result in results:
 				count += 1
-				conn.execute(r'''INSERT OR REPLACE INTO rollStatus VALUES(?,?,?,?)''',result[0:3] + (result[4],))
+				conn.execute(r'''
+					INSERT OR  REPLACE INTO rollStatus
+					SELECT {0} , d.id , {2} , {3} FROM rollStatus r , degrees d
+					WHERE d.degree_name = {1}
+					'''.format(*(result[0:3] + (result[4],))))
 				if result[1] == 1:
 					conn.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',tuple((result[x] for x in [0,-1])))
 				if result[1] == 2:
