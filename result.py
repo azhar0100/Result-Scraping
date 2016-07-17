@@ -112,15 +112,13 @@ class BaseResult(object):
 	def father_name(self):
 		return unicode(get_tag_contents(self.credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string)
 
+	def __dict__(self):
+		attrs = ['rollNum','regNum','examType','group','date_of_birth','centre','student_name','father_name']
+		return {x:getattr(self,x) for x in attrs}
+
 	@lazy_property
 	def dict(self):
-		result_dict = {}
-		attr_list = ["rollNum","degree","session","year"]
-		result_dict.update({x:getattr(self,x) for x in attr_list})
-		result_dict.update(self.reg_row)
-		result_dict.update(self.degree_row)
-		result_dict.update(self.credential_row)
-		return result_dict
+		return self.__dict__()
 
 	# def __getattr__(self,name):
 	# 	try:
