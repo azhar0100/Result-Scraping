@@ -105,6 +105,19 @@ class DependantProperty(LazyProperty):
 			self.prop.__delete__(instance)
 		return result
 
+class ChainProperty(ThrowAwayProperty,DependantProperty):
+	def __init__(self,fn,prop=None):
+		ThrowAwayProperty.__init__(self,fn)
+		if prop is not None:
+			DependantProperty.__init__(self,fn,prop)
+
+	def __get__(self,instance,type=None):
+		if hasattr(self,'prop')
+			return DependantProperty.__get__(self,instance)
+		else:
+			return ThrowAwayProperty.__get__(self,instance)
+
+
 def depends(prop):
 	"""This decorator should be applied before lazy_property"""
 	logger.info("depends called with {}".format(prop))
