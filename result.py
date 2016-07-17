@@ -26,18 +26,23 @@ logger.addHandler(file_handler)
 def lowerdebug(msg):
 	logger.log(9,msg)
 
+class StudentNotFound(Exception):
+
+	def __init__(self,arg):
+		Exception.__init__(self,arg)
+
 def get_html_response(rollNum,degree,session,year):
 	params = { 'degree': degree , 'rollNum': rollNum , 'session': session , 'year': year }
-	return requests.post(url , data=params , headers=headers, timeout=30)
+	result = requests.post(url , data=params , headers=headers, timeout=30, allow_redirects=False)
+	if not result.status_code == 302:
+		return result
+	else:
+		raise StudentNotFound("Redirected to error")
 
 def get_tag_contents(bs4_tag):
 	"""Function to get the children of bs4_tag which are tags and not NavigableString"""
 	return bs4_tag(True,recursive=False)
 
-class StudentNotFound(Exception):
-
-	def __init__(self,arg):
-		Exception.__init__(self,arg)
 
 class BaseResult(object):
 
@@ -46,8 +51,6 @@ class BaseResult(object):
 			self.html = get_html_response(repr(rollNum).zfill(6),repr(degree),repr(session),repr(year)).text
 		else:
 			self.html = html
-		if re.search(r'Student not found.',self.html):
-			raise StudentNotFound("Student Not Found for this data")
 		self.rollNum = rollNum
 		self.degree = degree
 		self.session = session
