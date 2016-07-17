@@ -65,6 +65,45 @@ def throw_away_property(fn):
 
 	return _throw_away_property
 
+class LazyProperty(object):
+
+	def __init__(self,fn):
+		self.fn = fn
+
+	def __get__(self,instance):
+		if not hasattr(self,'data'):
+			self.data = self.fn(instance)
+		return self.data
+
+	def __delete__(self,instance):
+		del self.data
+
+class ThrowAwayProperty(LazyProperty):
+	"""This property has dependencies ,it is thrown away when they are fulfilled"""
+	def __init__(self,fn):
+		self.dependencies = []
+
+	def dependency(self,fn):
+		"""Decorator to bind dependencies."""
+
+
+class DependantProperty(LazyProperty):
+
+	def __init__(self,fn,prop):
+		"""prop is the ThrowAwayProperty on which this property depends"""
+		LazyProperty.__init__(self,fn)
+		self.fn = fn
+		self.prop = prop
+		prop.dependencies.append(self)
+
+	def __get__(self,instance):
+		result = self.fn(instance)
+		self.prop.dependencies.remove(self)
+		# Though simple , should be replaced by logic in a special dependencies descriptor
+		if not self.prop.dependencies:
+			self.prop.__delete__(instance)
+		return result
+
 def depends(prop):
 	"""This decorator should be applied before lazy_property"""
 	logger.info("depends called with {}".format(prop))
