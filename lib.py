@@ -78,15 +78,6 @@ class LazyProperty(object):
 	def __delete__(self,instance):
 		del self.data
 
-class ThrowAwayProperty(LazyProperty):
-	"""This property has dependencies ,it is thrown away when they are fulfilled"""
-	def __init__(self,fn):
-		LazyProperty.__init__(self,fn)
-		self.dependencies = []
-
-	def dependency(self,fn):
-		"""Decorator to bind dependencies."""
-		return DependantProperty(fn,self)
 
 
 class DependantProperty(LazyProperty):
@@ -105,6 +96,16 @@ class DependantProperty(LazyProperty):
 			self.prop.__delete__(instance)
 		return result
 
+class ThrowAwayProperty(LazyProperty):
+	"""This property has dependencies ,it is thrown away when they are fulfilled"""
+	def __init__(self,fn):
+		LazyProperty.__init__(self,fn)
+		self.dependencies = []
+
+	def dependency(self,fn):
+		"""Decorator to bind dependencies."""
+		return ChainProperty(fn,self)
+
 class ChainProperty(ThrowAwayProperty,DependantProperty):
 	def __init__(self,fn,prop=None):
 		ThrowAwayProperty.__init__(self,fn)
@@ -112,7 +113,7 @@ class ChainProperty(ThrowAwayProperty,DependantProperty):
 			DependantProperty.__init__(self,fn,prop)
 
 	def __get__(self,instance,type=None):
-		if hasattr(self,'prop')
+		if hasattr(self,'prop'):
 			return DependantProperty.__get__(self,instance)
 		else:
 			return ThrowAwayProperty.__get__(self,instance)
