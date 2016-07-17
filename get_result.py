@@ -96,7 +96,7 @@ def get_result(dbpath=None,
 			logger.info("Formed the ROLL_NUM_LIST")
 			start_time = time()
 			pool = Pool(pool_size)
-			results = lazy_imap(get_result_html,ROLL_NUM_LIST,pool,request_chunk_size)
+			results = lazy_imap(get_result_html,ROLL_NUM_LIST,pool,request_chunk_size,ordered=False)
 			count = 0
 			for result in results:
 				count += 1
