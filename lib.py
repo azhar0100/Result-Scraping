@@ -85,6 +85,7 @@ class ThrowAwayProperty(LazyProperty):
 
 	def dependency(self,fn):
 		"""Decorator to bind dependencies."""
+		DependantProperty(fn,self)
 
 
 class DependantProperty(LazyProperty):
