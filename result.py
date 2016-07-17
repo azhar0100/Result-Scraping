@@ -4,7 +4,7 @@ import re
 import requests
 from datetime import datetime,date
 from bs4 import BeautifulSoup
-from lib import lazy_property,throw_away_property,depends
+from lib import lazy_property,ThrowAwayProperty,DependantProperty
 import logging
 import collections
 
@@ -53,11 +53,11 @@ class BaseResult(object):
 		self.session = session
 		self.year = year
 
-	@throw_away_property
+	@ThrowAwayProperty
 	def soup(self):
 		return BeautifulSoup(self.html,'lxml')
 
-	@depends(soup)
+	@soup.dependency
 	def middle_table(self):
 		return self.soup.select(".td2")[0].table
 

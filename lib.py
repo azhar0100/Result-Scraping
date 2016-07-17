@@ -70,7 +70,7 @@ class LazyProperty(object):
 	def __init__(self,fn):
 		self.fn = fn
 
-	def __get__(self,instance):
+	def __get__(self,instance,type=None):
 		if not hasattr(self,'data'):
 			self.data = self.fn(instance)
 		return self.data
@@ -81,11 +81,12 @@ class LazyProperty(object):
 class ThrowAwayProperty(LazyProperty):
 	"""This property has dependencies ,it is thrown away when they are fulfilled"""
 	def __init__(self,fn):
+		LazyProperty.__init__(self,fn)
 		self.dependencies = []
 
 	def dependency(self,fn):
 		"""Decorator to bind dependencies."""
-		DependantProperty(fn,self)
+		return DependantProperty(fn,self)
 
 
 class DependantProperty(LazyProperty):
@@ -97,7 +98,7 @@ class DependantProperty(LazyProperty):
 		self.prop = prop
 		prop.dependencies.append(self)
 
-	def __get__(self,instance):
+	def __get__(self,instance,type=None):
 		result = self.fn(instance)
 		self.prop.dependencies.remove(self)
 		# Though simple , should be replaced by logic in a special dependencies descriptor
