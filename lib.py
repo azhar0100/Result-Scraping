@@ -94,12 +94,11 @@ class DependantProperty(LazyProperty):
 	def __init__(self,fn,prop):
 		"""prop is the ThrowAwayProperty on which this property depends"""
 		LazyProperty.__init__(self,fn)
-		self.fn = fn
 		self.prop = prop
 		prop.dependencies.append(self)
 
 	def __get__(self,instance,type=None):
-		result = self.fn(instance)
+		result = LazyProperty.__get__(self,instance)
 		self.prop.dependencies.remove(self)
 		# Though simple , should be replaced by logic in a special dependencies descriptor
 		if not self.prop.dependencies:
