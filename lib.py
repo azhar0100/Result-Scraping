@@ -76,10 +76,11 @@ class LazyProperty(object):
 		return self.data
 
 	def __delete__(self,instance):
-		del self.data
-
-
-
+		try:
+			del self.data
+		except AttributeError:
+			pass
+			
 class DependantProperty(LazyProperty):
 
 	def __init__(self,fn,prop):
@@ -90,7 +91,8 @@ class DependantProperty(LazyProperty):
 
 	def __get__(self,instance,type=None):
 		result = LazyProperty.__get__(self,instance)
-		self.prop.dependencies.remove(self)
+		if self in self.prop.dependencies:
+			self.prop.dependencies.remove(self)
 		# Though simple , should be replaced by logic in a special dependencies descriptor
 		if not self.prop.dependencies:
 			self.prop.__delete__(instance)
