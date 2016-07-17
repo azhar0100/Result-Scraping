@@ -87,7 +87,7 @@ def get_result(dbpath=None,
 		conn.execute('''INSERT OR IGNORE INTO degrees VALUES(?,?)''',{v:k for (k,v) in degree_ints.items() if k == current_degree}.items()[0])
 
 		for current_session in session:
-			avoid_rollNums = set([x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus WHERE status=1 OR (status=0 AND degree = ? AND session = ?)''',(current_degree,current_session))])
+			avoid_rollNums = set([x for (x,) in conn.execute(r'''SELECT rollnum FROM rollStatus WHERE status=1 OR (status=0 AND degree = ? AND session = ?)''',(degree_ints[current_degree],current_session))])
 			logger.info("Formed the avoid_rollNums set")
 			ROLL_NUM_LIST = [(x,current_degree,current_session,year) for x in (x for x in range(000000,999999) if  x not in avoid_rollNums)]
 			logger.info("Formed the ROLL_NUM_LIST")
@@ -100,7 +100,7 @@ def get_result(dbpath=None,
 				conn.execute(r'''
 					INSERT OR  REPLACE INTO rollStatus
 					SELECT {0} , d.id , {2} , {3} FROM degrees d
-					WHERE d.degree_name = {1}
+					WHERE d.degree_name = '{1}'
 					'''.format(*(result[0:3] + (result[4],))))
 				if result[1] == 1:
 					conn.execute(r'''INSERT OR REPLACE INTO resultHtml VALUES(?,?)''',tuple((result[x] for x in [0,-1])))
