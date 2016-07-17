@@ -65,8 +65,6 @@ class BaseResult(object):
 	def reg_row(self):
 		return self.middle_table('tr',recursive=False)[1].td.table.tr
 
-	logger.info(reg_row)
-
 	@reg_row.dependency
 	def regNum(self):
 		try:
@@ -74,31 +72,46 @@ class BaseResult(object):
 		except AttributeError:
 			return None
 
-	@lazy_property
+	@middle_table.dependency
 	def degree_row(self):
-		degree_row = self.middle_table('tr',recursive=False)[2].select('h4')[0]
-		degree_and_exam_str = list(degree_row.stripped_strings)[0]
-		return {
-			"examType" : re.search(r'\(([^()]+)\)',degree_and_exam_str).groups()[0].strip() ,
-			"group"    : degree_row.select('u')[1].string.strip()
-		}
+		return self.middle_table('tr',recursive=False)[2].select('h4')[0]
 
-	@lazy_property
-	def credential_row(self):
-		credential_row = self.middle_table('tr',recursive=False)[3].table
-		try:
-			date_of_birth = datetime.strptime(get_tag_contents(credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
-		except TypeError:
-			date_of_birth = None
-
-		return {
-			"student_name" : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string),
-			"father_name"  : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string),
-			"centre"       : unicode(get_tag_contents(credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string),
-			"date_of_birth": date_of_birth
-		}
-
+	@degree_row.dependency
+	def degree_and_exam_str(self):
+		return list(self.degree_row.stripped_strings)[0]
 	
+	@degree_and_exam_str.dependency
+	def examType(self):
+		return re.search(r'\(([^()]+)\)',self.degree_and_exam_str).groups()[0].strip()
+
+	@degree_row.dependency
+	def group(self):
+		return self.degree_row.select('u')[1].string.strip()
+
+	@middle_table.dependency
+	def credential_row(self):
+		return self.middle_table('tr',recursive=False)[3].table
+		
+
+	@credential_row.dependency
+	def date_of_birth(self):
+		try:
+			return datetime.strptime(get_tag_contents(self.credential_row.find_all('tr',recursive=False)[2].find_all('td',recursive=False)[1])[0].string ,"%d/%m/%Y").date()
+		except TypeError:
+			return None
+
+	@credential_row.dependency
+	def centre(self):
+		return unicode(get_tag_contents(self.credential_row.find_all('tr',recursive=False)[3].find_all('td',recursive=False)[1])[0].string)
+
+	@credential_row.dependency
+	def student_name(self):
+		return unicode(get_tag_contents(self.credential_row.find_all('tr',recursive=False)[0].find_all('td',recursive=False)[1])[0].string)
+
+	@credential_row.dependency
+	def father_name(self):
+		return unicode(get_tag_contents(self.credential_row.find_all('tr',recursive=False)[1].find_all('td',recursive=False)[1])[0].string)
+
 	@lazy_property
 	def dict(self):
 		result_dict = {}
