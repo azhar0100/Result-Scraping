@@ -1,6 +1,8 @@
 class CustomList(list):
-"""This class is basically a decorator class which makes it possible to implement extra operations
-during list get ,set and delete"""
+"""
+This class is basically a decorator class which makes it possible to implement extra operations
+during list get ,set and delete
+"""
 
 	def __init__(self,fn,*args,**kwargs):
 		"""
@@ -56,7 +58,7 @@ during list get ,set and delete"""
 
 	def insert(self,position,value)
 		list.insert(self,position,value)
-		self.set_func(self,position,value)
+		self.__setitem__(self,position,value)
 
 
 	def deleter(self,fn):
