@@ -1,4 +1,5 @@
 from itertools import islice
+from customlist import CustomList
 import logging
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,21 @@ def throw_away_property(fn):
 
 	return _throw_away_property
 
+class DependencyList(CustomList):
+
+	def __init__(self,prop_obj):
+		"""
+		Args:
+			prop_obj ; The property to which these dependencies belong.
+		"""
+		self.prop_obj = prop_obj
+
+	def __delitem__(self,index):
+		CustomList.__delitem__(self,index)
+		if len(self) == 0:
+			# Zero length means all dependencies are fulfilled
+			del prop_obj.data
+
 class LazyProperty(object):
 
 	def __init__(self,fn):
@@ -91,11 +107,7 @@ class DependantProperty(LazyProperty):
 
 	def __get__(self,instance,type=None):
 		result = LazyProperty.__get__(self,instance)
-		if self in self.prop.dependencies:
-			self.prop.dependencies.remove(self)
-		# Though simple , should be replaced by logic in a special dependencies descriptor
-		if not self.prop.dependencies:
-			self.prop.__delete__(instance)
+		self.prop.dependencies.remove(self)
 		return result
 
 class ThrowAwayProperty(LazyProperty):
