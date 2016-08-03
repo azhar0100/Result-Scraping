@@ -1,8 +1,9 @@
 class CustomList(list):
-"""
-This class is basically a superclass which makes it possible to implement extra operations
-during list get ,set and delete by subclassing it and implementing custom magic methods.
-"""
+	"""
+	This class is basically a superclass which makes it possible to implement extra operations
+	during list get ,set and delete by subclassing it and implementing custom magic methods.
+	"""
+	
 	def append(self,value):
 		CustomList.__setitem__(self,-1,value)
 
