@@ -28,3 +28,6 @@ python.exe get_result.py
 
 ####Note
 If the performance is slow , you might want to invoke the program with --pool-size something-more-than-100
+
+###Note
+This program may not use the complete internet bandwidth because of CPython GIL, use pypy to bypass that.
