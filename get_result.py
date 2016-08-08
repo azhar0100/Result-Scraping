@@ -120,7 +120,7 @@ if __name__ == '__main__':
 	parser.add('--request-chunk-size',type=int,default=1000)
 	parser.add('--database-chunk-size',type=int,default=100)
 	parser.add('--pool-size',type=int,default=100)
-	parser.add('--dbpath',required=True)
+	parser.add('--dbpath',required=True ,help='The path where the database file will be stored')
 	args = parser.parse_args()
 
 	file_handler = logging.FileHandler("{}/get_result.log".format(args.log_dir))
