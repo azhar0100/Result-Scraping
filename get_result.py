@@ -6,6 +6,7 @@ from result import Result,StudentNotFound
 from time import time
 from itertools import islice
 from lib import lazy_imap
+import argparse as configargparse
 import re
 import sqlite3
 import json
@@ -113,7 +114,7 @@ if __name__ == '__main__':
 	parser = configargparse.ArgumentParser()
 
 	parser.add_argument('-l','--log-dir',help='The directory to put log files in.')
-	parser.add_argument('-c','--conf-file',is_config_file=True)
+	parser.add_argument('-c','--conf-file')
 	parser.add_argument('--degree', action='append')
 	parser.add_argument('--session', action='append')
 	parser.add_argument('--year',required=True,type=int, action='append')
