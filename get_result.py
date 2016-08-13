@@ -110,17 +110,17 @@ def get_result(dbpath=None,
 
 
 if __name__ == '__main__':	
-	parser = configargparse.Parser()
+	parser = configargparse.ArgumentParser()
 
-	parser.add('-l','--log-dir',help='The directory to put log files in.')
-	parser.add('-c','--conf-file',is_config_file=True)
-	parser.add('--degree', action='append')
-	parser.add('--session', action='append')
-	parser.add('--year',required=True,type=int, action='append')
-	parser.add('--request-chunk-size',type=int,default=1000)
-	parser.add('--database-chunk-size',type=int,default=100)
-	parser.add('--pool-size',type=int,default=100)
-	parser.add('--dbpath',required=True ,help='The path where the database file will be stored')
+	parser.add_argument('-l','--log-dir',help='The directory to put log files in.')
+	parser.add_argument('-c','--conf-file',is_config_file=True)
+	parser.add_argument('--degree', action='append')
+	parser.add_argument('--session', action='append')
+	parser.add_argument('--year',required=True,type=int, action='append')
+	parser.add_argument('--request-chunk-size',type=int,default=1000)
+	parser.add_argument('--database-chunk-size',type=int,default=100)
+	parser.add_argument('--pool-size',type=int,default=100)
+	parser.add_argument('--dbpath',required=True ,help='The path where the database file will be stored')
 	args = parser.parse_args()
 
 	file_handler = logging.FileHandler("{}/get_result.log".format(args.log_dir))
