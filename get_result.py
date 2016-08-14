@@ -80,7 +80,7 @@ def get_result(dbpath=None,
 		rollnum INTEGER PRIMARY KEY,
 		html TEXT UNIQUE
 		)''')
-	for current_year in years:
+	for current_year in year:
 		for current_degree in degree:
 			conn.execute('''INSERT OR IGNORE INTO degrees VALUES(?,?)''',{v:k for (k,v) in degree_ints.items() if k == current_degree}.items()[0])
 			for current_session in session:
