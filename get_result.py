@@ -115,9 +115,9 @@ if __name__ == '__main__':
 
 	parser.add('-l','--logfile',help='The directory to put log files in.')
 	parser.add('-c','--conf-file',is_config_file=True)
-	parser.add('--degree', action='append')
-	parser.add('--session', action='append')
-	parser.add('--year',required=True,type=int, action='append')
+	parser.add('--degree', action='append' ,default=['SSC','HSSC'])
+	parser.add('--session', action='append',default=[0,1,2])
+	parser.add('--year',required=True,type=int, action='append',default=[2015])
 	parser.add('--request-chunk-size',type=int,default=1000)
 	parser.add('--database-chunk-size',type=int,default=100)
 	parser.add('--pool-size',type=int,default=100)
