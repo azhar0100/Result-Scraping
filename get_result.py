@@ -62,8 +62,8 @@ def get_result(dbpath=None,
 	logger.info("Formed connection with the file:{}".format(dbpath))
 
 	def end_commit(conn):
-		logger.info("End Commit")
 		conn.commit()
+		logger.info("End Commit")
 	atexit.register(end_commit , conn)
 	conn.execute('''CREATE TABLE IF NOT EXISTS rollStatus(
 		rollnum INTEGER,
