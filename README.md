@@ -24,11 +24,12 @@ How to use.
 		python.exe get_result.py
 	```
 
-  -On UNIX
+  - On UNIX
 
 	```
 		./get_result.py
 	```
++ The get_result script takes some arguments, the details of which may be obtained by passing `--help` to `get_result.py` as `get_result.py --help`.
 
 + Look at the progress i guess.
 
