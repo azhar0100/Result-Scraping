@@ -14,15 +14,15 @@ How to use.
 + Invoke it by going to the directory in which you installed it and invoking with
   - On windows
 
-```
-python.exe get_result.py
-```
+	```
+		python.exe get_result.py
+	```
 
   -On UNIX
 
-```
-./get_result.py
-```
+	```
+		./get_result.py
+	```
 
 + Look at the progress i guess.
 
