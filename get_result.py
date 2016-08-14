@@ -113,7 +113,7 @@ def get_result(dbpath=None,
 if __name__ == '__main__':	
 	parser = configargparse.Parser()
 
-	parser.add('-l','--log-dir',help='The directory to put log files in.')
+	parser.add('-l','--logfile',help='The directory to put log files in.')
 	parser.add('-c','--conf-file',is_config_file=True)
 	parser.add('--degree', action='append')
 	parser.add('--session', action='append')
@@ -124,10 +124,16 @@ if __name__ == '__main__':
 	parser.add('--dbpath',required=True ,help='The path where the database file will be stored')
 	args = parser.parse_args()
 
-	file_handler = logging.FileHandler("{}/get_result.log".format(args.log_dir))
-	file_handler.setLevel(logging.DEBUG)
-	file_handler.setFormatter(formatter)
-	logger.addHandler(file_handler)
+	if hasattr(args,logfile):
+		if args.logfile is None:
+			# Will be executed if no value is specified.
+			logfilepath = 'get_result.py'
+		else:
+			logfilepath = args.logfile
+		file_handler = logging.FileHandler(logfilepath)
+		file_handler.setLevel(logging.DEBUG)
+		file_handler.setFormatter(formatter)
+		logger.addHandler(file_handler)
 
 	arglist = ['dbpath','degree','year','request_chunk_size','database_chunk_size','pool_size']
 	get_result(**{ k:getattr(args,k) for k in arglist })
