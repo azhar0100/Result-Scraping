@@ -135,5 +135,5 @@ if __name__ == '__main__':
 		file_handler.setFormatter(formatter)
 		logger.addHandler(file_handler)
 
-	arglist = ['dbpath','degree','year','request_chunk_size','database_chunk_size','pool_size']
+	arglist = ['dbpath','degree','session','year','request_chunk_size','database_chunk_size','pool_size']
 	get_result(**{ k:getattr(args,k) for k in arglist })
