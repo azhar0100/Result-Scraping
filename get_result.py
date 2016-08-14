@@ -127,7 +127,7 @@ if __name__ == '__main__':
 	parser.add('--ordered',default=True)
 	args = parser.parse_args()
 
-	if hasattr(args,logfile):
+	if hasattr(args,"logfile"):
 		if args.logfile is None:
 			# Will be executed if no value is specified.
 			logfilepath = 'get_result.py'
