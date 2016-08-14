@@ -51,7 +51,7 @@ def get_result(dbpath=None,
 	year=[2015],
 	request_chunk_size=1000,
 	database_chunk_size=100,
-	pool_size=100
+	pool_size=100,
 	ordered=True
 	):
 
