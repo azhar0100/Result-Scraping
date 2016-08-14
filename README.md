@@ -7,7 +7,13 @@ How to use.
 
 ###get_result program
 + Download the program.
-+ Download the dependencies
++ This program has a lot of dependencies. Download the dependencies using pip,as
+
+    ```
+    pip install dependency-name
+    // You might need to execute this as root (i.e preceded with sudo) in linux.
+    ```
+
   - Beautiful Soup
   - ConfigArgParse
   - requests
