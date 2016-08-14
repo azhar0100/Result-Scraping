@@ -51,7 +51,9 @@ def get_result(dbpath=None,
 	year=[2015],
 	request_chunk_size=1000,
 	database_chunk_size=100,
-	pool_size=100):
+	pool_size=100
+	ordered=True
+	):
 
 	degree_ints = {'SSC':1,'HSSC':2}
 
@@ -89,7 +91,7 @@ def get_result(dbpath=None,
 				ROLL_NUM_LIST = [(x,current_degree,current_session,current_year) for x in (x for x in range(000000,999999) if  x not in avoid_rollNums)]
 				logger.info("Formed the ROLL_NUM_LIST")
 				pool = Pool(pool_size)
-				results = lazy_imap(get_result_html,ROLL_NUM_LIST,pool,request_chunk_size,ordered=False)
+				results = lazy_imap(get_result_html,ROLL_NUM_LIST,pool,request_chunk_size,ordered=ordered)
 				count = 0
 				for result in results:
 					count += 1
@@ -122,6 +124,7 @@ if __name__ == '__main__':
 	parser.add('--database-chunk-size',type=int,default=100)
 	parser.add('--pool-size',type=int,default=100)
 	parser.add('--dbpath',required=True ,help='The path where the database file will be stored',env_var='DBPATH')
+	parser.add('--ordered',default=True)
 	args = parser.parse_args()
 
 	if hasattr(args,logfile):
