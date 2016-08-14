@@ -115,7 +115,7 @@ def get_result(dbpath=None,
 if __name__ == '__main__':	
 	parser = configargparse.Parser()
 
-	parser.add('-l','--logfile',help='The directory to put log files in.')
+	parser.add('-l','--logfile',help='The directory to put log files in.',default=configargparse.SUPPRESS)
 	parser.add('-c','--conf-file',is_config_file=True)
 	parser.add('--degree', action='append' ,default=['SSC','HSSC'])
 	parser.add('--session', action='append',default=[0,1,2])
