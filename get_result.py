@@ -130,7 +130,7 @@ if __name__ == '__main__':
 	if hasattr(args,"logfile"):
 		if args.logfile is None:
 			# Will be executed if no value is specified.
-			logfilepath = 'get_result.py'
+			logfilepath = 'get_result.log'
 		else:
 			logfilepath = args.logfile
 		file_handler = logging.FileHandler(logfilepath)
