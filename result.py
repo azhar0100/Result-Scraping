@@ -275,6 +275,7 @@ class Result_part1(ResultMarks):
 
 
 def Result(rollNum,degree,session,year,html=''):
+	# Retained for backward compatibility
 	if session == 0:
 		return BaseResult(rollNum,degree,session,year)
 	if session == 1:
