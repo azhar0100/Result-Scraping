@@ -17,6 +17,11 @@ How to use.
   - Beautiful Soup
   - ConfigArgParse
   - requests
+  Install them by
+
+  ```
+  pip install bs4 configargparse requests
+  ```
 + Invoke it by going to the directory in which you installed it and invoking with
   - On windows
 
