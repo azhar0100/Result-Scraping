@@ -117,13 +117,13 @@ if __name__ == '__main__':
 
 	parser.add('-l','--logfile',help='The directory to put log files in.',default=configargparse.SUPPRESS)
 	parser.add('-c','--conf-file',is_config_file=True)
-	parser.add('-d','--degree', action='append' ,default=['SSC','HSSC'])
-	parser.add('-s','--session', action='append',default=[0,1,2])
-	parser.add('-y','--year', action='append',default=[2015])
+	parser.add('-d','--degree', action='append' ,default=['SSC','HSSC'] ,help="Specify either SSC or HSSC (or both). ")
+	parser.add('-s','--session', action='append',default=[0,1,2],help="Specify either part 1,2 or 0(which is supplementary")
+	parser.add('-y','--year', action='append',default=[2015],help="Specify the years as (20xx)")
 	parser.add('--request-chunk-size',type=int,default=1000)
 	parser.add('--database-chunk-size',type=int,default=100)
 	parser.add('--pool-size',type=int,default=100)
-	parser.add('--dbpath',required=True ,help='The path where the database file will be stored',env_var='DBPATH')
+	parser.add('--dbpath',required=True ,help='The path where the database file will be stored(ending in .sqlite or .db',env_var='DBPATH')
 	parser.add('--ordered',default=True)
 	args = parser.parse_args()
 
